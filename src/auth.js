@@ -1,12 +1,10 @@
-import mongo from 'mongodb'
 import connect from './db'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { verify } from 'crypto';
 
 (async () => {
     let db = await connect();
-    db.collection('users').createIndex({ username: 1 }, { unique: true });
+    db.collection('users').createIndex({ email: 1 }, { unique: true });
 })();
 
 
@@ -24,7 +22,7 @@ export default {
         }
 
         try{
-            let insertResult = await db.collection("users").insertOne(user);
+            let insertResult = await db.collection('users').insertOne(user);
             if(insertResult && insertResult.insertedId){
                 return insertResult.insertedId
             }
@@ -37,9 +35,9 @@ export default {
     },
 
 
-    async authenticateUser(username,password){
+    async authenticateUser(email,password){
         let db = await connect()
-        let user = await db.collection("users").findOne({username : username})
+        let user = await db.collection("users").findOne({email : email})
 
         // provjerava da li je ovaj hesh u bazi izveden iz cistog passworda
         if(user && user.password && (await bcrypt.compare(password, user.password))){
@@ -55,7 +53,7 @@ export default {
 
             return{
                 token,
-                username : user.username
+                email : user.email
             }
 
         }
@@ -85,6 +83,26 @@ export default {
         }
         catch(e){
             return res.status(401).send()
+        }
+    },
+
+    async changeUserPassword(email, oldPassword, newPassword){
+        let db = await connect()
+
+        let user = await db.collection("users").findOne({email : email})
+
+        if (user && user.password && (await bcrypt.compare(oldPassword, user.password))){
+            let newPasswordTransformed = await bcrypt.hash(newPassword, 8)
+
+            let result = await db.collection('users').updateOne(
+                { _id: user._id },
+                {
+                    $set: {
+                        password: newPasswordTransformed,
+                    },
+                }
+            );
+            return result.modifiedCount == 1;
         }
     }
 
