@@ -10,16 +10,39 @@ import jwt from 'jsonwebtoken'
 
 export default {
     async register(userData){
+
+        for (const [key, value] of Object.entries(userData)) {
+            if(!value){
+              res.json({status: 'Missing data'})
+              return
+            }
+        }
+
         let db = await connect()
         
         let user = {
             email: userData.email,
             password: await bcrypt.hash(userData.password, 8),
             name: userData.name,
-            surname: userData.surname,
-            accountType: userData.account_type
-            
+            registerDate : Date.now()
         }
+
+        if(userData.jmbag){
+            user.accountType = 'Student',
+            user.JMBAG = userData.jmbag,
+            user.surname = userData.surname,
+            user.technology = userData.technology
+            user.year= userData.year
+        } else{
+            user.accountType = 'Poslodavac',
+            user.technology= userData.technology,
+            user.adress = userData.adress,
+            user.aboutUS = userData.about_us,
+            user.webiste = userData.website,
+            user.contactEmail = userData.contact_email,
+            user.contactNumber = userData.telephone_number
+        }
+
 
         try{
             let insertResult = await db.collection('users').insertOne(user);

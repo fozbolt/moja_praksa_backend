@@ -23,6 +23,10 @@ app.post('/projects', routes.addProject)
 app.post('/partners', routes.addPartner)
 app.get('/partners', routes.getPartners)
 app.patch('/register', [auth.verify], routes.changePassword)
+app.get('/projects/:id', routes.getOneProject)
+app.get('/partners/:id', routes.getOnePartner)
+app.patch('/projects/:id', routes.changeProjectInfo)
+app.patch('/projects/:id', routes.changePartnerInfo)
 
 
 app.listen(port, () => console.log(`Slušam na portu ${port}!`))
