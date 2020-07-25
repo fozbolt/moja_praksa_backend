@@ -32,6 +32,19 @@ let getOneProject = async (req,res) =>{
     res.json(result)
 }
 
+let getPartnerProjects  = async (req,res) =>{
+
+    let partnerID = req.params.id
+    let db = await connect()
+
+    //nađi projekte koje pripadaju određenom poslodavcu
+    let cursor = await db.collection("projects").find({id_poslodavca: ObjectID(partnerID)})
+
+    let results =  await cursor.toArray()
+    res.send(results)
+
+}
+
 
 let getOnePartner = async (req,res) =>{
     let id = req.params.id
@@ -276,5 +289,5 @@ let home =(req, res) => {
 
 
 
-export default { home, registration, login, secret, userProfile , getProjects, addProject, 
+export default { home, registration, login, secret, userProfile , getProjects, addProject, getPartnerProjects,   
                 addPartner, getPartners, changePassword, getOneProject, getOnePartner, changeProjectInfo, changePartnerInfo  } 

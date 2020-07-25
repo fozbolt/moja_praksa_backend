@@ -27,6 +27,7 @@ app.get('/projects/:id', routes.getOneProject)
 app.get('/partners/:id', routes.getOnePartner)
 app.patch('/projects/:id', routes.changeProjectInfo)
 app.patch('/projects/:id', routes.changePartnerInfo)
+app.get('/partnerProjects/:id', routes.getPartnerProjects)
 
 
 app.listen(port, () => console.log(`Slušam na portu ${port}!`))
