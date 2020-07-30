@@ -73,11 +73,10 @@ export default {
                 algorithm: "HS512",
                 expiresIn: "1 week"
             })
+            
+            user.token = token
 
-            return{
-                token,
-                email : user.email
-            }
+            return user 
 
         }
         else {

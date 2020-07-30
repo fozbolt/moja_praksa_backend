@@ -1,6 +1,7 @@
 import connect from './db.js'
 import auth from './auth.js'
 import { ObjectID } from 'mongodb'
+import mongodb from 'mongodb'
 
 //maknuti kad spojimo i dovršimo login? ili je bitno? zašto prof nema na loginu ? ovo samo za primjer?
 let secret = async (req,res) => {
@@ -17,6 +18,9 @@ let validateData = (data) => {
     }
     return true
 }
+
+
+
 
 
 let getOneProject = async (req,res) =>{
@@ -321,10 +325,13 @@ let userProfile = async (req, res) => {
     res.json(results)
 }
 
-//testna
-let home =(req, res) => {
+let  home = async (req, res) => {
 
-    res.send('Hello World, ovaj puta preko browsera!')
+    let db = await connect()
+
+    let numberOfDocs = await db.collection("projects").countDocuments();
+
+    res.json(numberOfDocs)
 }
 
 
