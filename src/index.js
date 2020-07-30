@@ -25,8 +25,9 @@ app.get('/partners', routes.getPartners)
 app.patch('/register', [auth.verify], routes.changePassword)
 app.get('/projects/:id', routes.getOneProject)
 app.get('/partners/:id', routes.getOnePartner)
-app.patch('/projects/:id', routes.changeProjectInfo)
-app.patch('/projects/:id', routes.changePartnerInfo)
+app.patch('/projects/:id/:update', routes.changeProjectInfo)
+app.delete('/projects/:id/:update', routes.changeProjectInfo)
+app.patch('/partners/:id', routes.changePartnerInfo)
 app.get('/partnerProjects/:id', routes.getPartnerProjects)
 
 

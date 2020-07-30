@@ -109,22 +109,55 @@ let registration = async (req, res) => {
 
 
 // da se smanji redundancija koda pošto je identičan postupak za promjenu info partnera i projekta
-let changeInfo = async (data, collectionName) => {
+let changeInfo = async (project, collectionName) => {
     let db = await connect();
+    let result
+ 
+    //da se ne salje i ID u update
+    let id = project.id
+    delete project.id
+                                        //za ovakav update više odgovara put, a ne patch?
+    if (project.updateDoc==='true')    result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: project });
+    else                               result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } );
+                              
 
-    let result = await db.collection(collectionName).updateOne( { _id: ObjectID(data.id) },{$set: data });
-
-    if (result.modifiedCount == 1) return 'success'
+    if (result.modifiedCount == 1 || result.deletedCount == 1)  return 'success'
     else return 'fail'
 }
 
 
-let changeProjectInfo = async (req,res) => {
-    let projectInfo = req.body
-    delete projectInfo._id;
-    projectInfo.id = req.params.id;
+let mapAttributes = async (projectData) =>{
+    //vidjeti moze li se to izvesti kako bolje
+    let project = {
+            ime_poslodavca: projectData.company,
+            id_poslodavca: ObjectID('5f1c089101848e36e0aebf3d'), //hardcodano za sad
+            opis_projekta: projectData.project_description,
+            datum_dodavanja: Date.now(),
+            email_kontakt_osobe: projectData.project_contact,
+            tehnologije: projectData.project_technologies,
+            preference: projectData.project_prefrences,
+            potrebe_za_obavljanje: projectData.project_required,
+            trajanje: projectData.project_duration,
+            lokacija: projectData.project_location,
+            napomena: projectData.project_note,
+    }
+    return project
+}
 
-    let response = await changeInfo(projectInfo, 'projects')
+
+let changeProjectInfo = async (req,res) => {
+
+    let project = req.body 
+    delete project.id;
+
+    if (project) project = await mapAttributes(project)
+    else         project = {}
+    
+
+    project.id = req.params.id;
+    project.updateDoc = req.params.update 
+    
+    let response = await changeInfo(project, 'projects')
     
     res.send(response)
 }
@@ -136,7 +169,7 @@ let changePartnerInfo = async (req,res) => {
     delete partnerInfo._id;
     partnerInfo.id = req.params.id;
 
-    response = await changeInfo(partnerInfo, 'partners')
+    response = await changeInfo(partnerInfo, 'partners', false)
 
     res.send(response)
 }
@@ -240,8 +273,15 @@ let addProject = async (req,res) => {
     let projectData = req.body
     delete projectData._id
 
+  
+    // uskladiti imena atributa da ne treba toliko mapirati
+    let project = await mapAttributes(projectData)
+
+    //slika je hardcodana jer nema bas smisla imati custom sliku projekta
+    project.url_slike = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+
     try{
-        let result = await pushData(projectData, 'projects')
+        let result = await pushData(project, 'projects')
         res.send(`project with id  ${result} added.`)
 
     }
