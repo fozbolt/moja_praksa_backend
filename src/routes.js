@@ -329,7 +329,10 @@ let  home = async (req, res) => {
 
     let db = await connect()
 
-    let numberOfDocs = await db.collection("projects").countDocuments();
+    let numberOfDocs = {}
+
+    numberOfDocs.projectsCounter = await db.collection("projects").countDocuments();
+    numberOfDocs.partnersCounter = await db.collection("partners").countDocuments();
 
     res.json(numberOfDocs)
 }
