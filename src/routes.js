@@ -1,25 +1,13 @@
 import connect from './db.js'
 import auth from './auth.js'
 import { ObjectID } from 'mongodb'
-import mongodb from 'mongodb'
+import methods from './methods.js'
 
-//maknuti kad spojimo i dovršimo login? ili je bitno? zašto prof nema na loginu ? ovo samo za primjer?
+
 let secret = async (req,res) => {
 
     res.json({message: 'ovo je tajna' + req.jwt.username})
 }
-
-
-let validateData = (data) => {
-    for (const [key, value] of Object.entries(data)) {
-        if(!value){
-          return false
-        }
-    }
-    return true
-}
-
-
 
 
 
@@ -35,6 +23,7 @@ let getOneProject = async (req,res) =>{
 
     res.json(result)
 }
+
 
 let getPartnerProjects  = async (req,res) =>{
 
@@ -98,55 +87,24 @@ let login = async (req,res) => {
 
 
 let registration = async (req, res) => { 
-    let user = req.body;
+    let newUser = req.body;
 
     try {
-        let result = await auth.register(user);
-        res.json(result);
+        let user = await auth.register(newUser);
+        let partner 
+
+        //dodavanje korisnika automatski u partnere čim se registrira
+        if (user.accountType === 'Poslodavac')   partner = await methods.addPartner(user)
+        
+        res.json({status: `user & partner with id ${partner._id} added`})
+
     } catch (e) {
         res.status(500).json({
             error: e.message,
         });
     }
-    
 }
 
-
-// da se smanji redundancija koda pošto je identičan postupak za promjenu info partnera i projekta
-let changeInfo = async (project, collectionName) => {
-    let db = await connect();
-    let result
- 
-    //da se ne salje i ID u update
-    let id = project.id
-    delete project.id
-                                        //za ovakav update više odgovara put, a ne patch?
-    if (project.updateDoc==='true')    result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: project });
-    else                               result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } );
-                              
-
-    if (result.modifiedCount == 1 || result.deletedCount == 1)  return 'success'
-    else return 'fail'
-}
-
-
-let mapAttributes = async (projectData) =>{
-    //vidjeti moze li se to izvesti kako bolje
-    let project = {
-            ime_poslodavca: projectData.company,
-            id_poslodavca: ObjectID('5f1c089101848e36e0aebf3d'), //hardcodano za sad
-            opis_projekta: projectData.project_description,
-            datum_dodavanja: Date.now(),
-            email_kontakt_osobe: projectData.project_contact,
-            tehnologije: projectData.project_technologies,
-            preference: projectData.project_prefrences,
-            potrebe_za_obavljanje: projectData.project_required,
-            trajanje: projectData.project_duration,
-            lokacija: projectData.project_location,
-            napomena: projectData.project_note,
-    }
-    return project
-}
 
 
 let changeProjectInfo = async (req,res) => {
@@ -154,14 +112,14 @@ let changeProjectInfo = async (req,res) => {
     let project = req.body 
     delete project.id;
 
-    if (project) project = await mapAttributes(project)
+    if (project) project = await methods.mapAttributes(project)
     else         project = {}
     
 
     project.id = req.params.id;
     project.updateDoc = req.params.update 
     
-    let response = await changeInfo(project, 'projects')
+    let response = await methods.changeInfo(project, 'projects')
     
     res.send(response)
 }
@@ -173,55 +131,9 @@ let changePartnerInfo = async (req,res) => {
     delete partnerInfo._id;
     partnerInfo.id = req.params.id;
 
-    response = await changeInfo(partnerInfo, 'partners', false)
+    response = await methods.changeInfo(partnerInfo, 'partners', false)
 
     res.send(response)
-}
-
-
-
-// da se smanji redundancija koda pošto je identičan postupak za pretragu partnera i projekta
-let search = async (query, atributi, collectionName) =>{
-    let db = await connect()
-
-    let selekcija = {}
-
-    if(query._any){
-        let pretraga = query._any
-        let terms = pretraga.split(' ')
-        console.log('terms:',terms)
-
-        selekcija = {
-            $and: []
-        }
-
-        
-        terms.map(function(term){
-            let or = { $or: [] };
-            atributi.map(or.$or.push({ [atribut]: new RegExp(term, "i") }));
-            selekcija.$and.push(or);
-        })
-        
-        /*
-        terms.forEach((term) => {
-            let or = {
-                $or: []
-            };
-
-            atributi.forEach(atribut => {
-                or.$or.push({ [atribut]: new RegExp(term, "i") });
-            })
-            selekcija.$and.push(or);
-        });
-        */
-        
-  }
-
-    let cursor = await db.collection(collectionName).find(selekcija).sort({ime_poslodavca: 1})
-
-    let results =  await cursor.toArray()
-    
-    return results
 }
 
 
@@ -231,7 +143,7 @@ let getProjects = async (req, res) => {
     let query = req.query
     let atributi = ["ime_poslodavca", "tehnologije", "lokacija", "opis_projekta"] 
 
-    let result = await search(query, atributi, 'projects')
+    let result = await methods.search(query, atributi, 'projects')
 
     res.json(result)
 }
@@ -242,33 +154,9 @@ let getPartners = async (req, res) => {
     let query = req.query
     let atributi = ["ime_poslodavca", "opis"] 
 
-    let result = await search(query, atributi, 'partners')
+    let result = await methods.search(query, atributi, 'partners')
     
     res.json(result)
-}
-
-// da se smanji redundancija koda pošto je identičan postupak za dodavanje partnera i projekta
-let pushData = async (data, collectionName) => {
-    data.publishedAt = Date.now()
-    
-    if (!validateData(data)) {
-        res.json({status: 'Missing data'})
-        return
-    }
-        
-    let db = await connect()
-
-    
-    try{
-        let insertResult = await db.collection(collectionName).insertOne(data);
-        if(insertResult && insertResult.insertedId){
-            return insertResult.insertedId  
-        }
-    }
-    catch(e){
-            throw new Error("Error accured during inserting project or partner")
-    } 
-
 }
 
 
@@ -279,13 +167,13 @@ let addProject = async (req,res) => {
 
   
     // uskladiti imena atributa da ne treba toliko mapirati
-    let project = await mapAttributes(projectData)
+    let project = await methods.mapAttributes(projectData)
 
     //slika je hardcodana jer nema bas smisla imati custom sliku projekta
     project.url_slike = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
 
     try{
-        let result = await pushData(project, 'projects')
+        let result = await methods.pushData(project, 'projects')
         res.send(`project with id  ${result} added.`)
 
     }
@@ -294,21 +182,6 @@ let addProject = async (req,res) => {
     }   
 }
 
-
-let addPartner = async (req,res) => {
-
-    let partnerData = req.body
-    delete partnerData._id
-
-    try{
-        let result = await pushData(partnerData, 'partners')
-        res.send(`partner with id  ${result} added.`)
-
-    }
-    catch(e){
-        res.status(500).json({ error: e.message});
-    }   
-}
 
 
 //testna
@@ -325,9 +198,12 @@ let userProfile = async (req, res) => {
     res.json(results)
 }
 
+
 let  home = async (req, res) => {
 
     let db = await connect()
+
+    console.log(methods.varijabla)
 
     let numberOfDocs = {}
 
@@ -340,4 +216,4 @@ let  home = async (req, res) => {
 
 
 export default { home, registration, login, secret, userProfile , getProjects, addProject, getPartnerProjects,   
-                addPartner, getPartners, changePassword, getOneProject, getOnePartner, changeProjectInfo, changePartnerInfo  } 
+                 getPartners, changePassword, getOneProject, getOnePartner, changeProjectInfo, changePartnerInfo  } 

@@ -24,8 +24,8 @@ export default {
             email: userData.email,
             password: await bcrypt.hash(userData.password, 8),
             name: userData.name,
-            registerDate : Date.now()
         }
+
 
         if(userData.jmbag){
             user.accountType = 'Student',
@@ -37,17 +37,21 @@ export default {
             user.accountType = 'Poslodavac',
             user.technology= userData.technology,
             user.adress = userData.adress,
-            user.aboutUS = userData.about_us,
-            user.webiste = userData.website,
+            user.aboutUs = userData.about_us,
+            user.website = userData.website,
             user.contactEmail = userData.contact_email,
             user.contactNumber = userData.telephone_number
+            user.url_slike = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80'
         }
-
+        
 
         try{
             let insertResult = await db.collection('users').insertOne(user);
+      
             if(insertResult && insertResult.insertedId){
-                return insertResult.insertedId
+                delete user.password
+
+                return user 
             }
         }
         catch(e){
@@ -55,6 +59,8 @@ export default {
                 throw new Error("User already exists")
             }
         }   
+
+
     },
 
 
