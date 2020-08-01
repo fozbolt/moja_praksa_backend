@@ -4,12 +4,6 @@ import { ObjectID } from 'mongodb'
 import methods from './methods.js'
 
 
-let secret = async (req,res) => {
-
-    res.json({message: 'ovo je tajna' + req.jwt.username})
-}
-
-
 
 let getOneProject = async (req,res) =>{
     //a kad bi bilo ?id=23432 onda dohvacamo s req.query, a url parametre ovako:
@@ -27,14 +21,20 @@ let getOneProject = async (req,res) =>{
 
 let getPartnerProjects  = async (req,res) =>{
 
-    let partnerID = req.params.id
+    let id = req.params.id
     let db = await connect()
 
     //nađi projekte koje pripadaju određenom poslodavcu
-    let cursor = await db.collection("projects").find({id_poslodavca: ObjectID(partnerID)})
+    let find_IDs= await db.collection("partners").find({_id: ObjectID(id)})
+    let result =  await find_IDs.toArray()
 
-    let results =  await cursor.toArray()
-    res.send(results)
+    let filtered_IDs = result[0].projects
+
+    let cursor2 = await db.collection("projects").find({_id: {$in: filtered_IDs}})
+    let finalResult =  await cursor2.toArray()
+    
+    
+    res.send(finalResult)
 
 }
 
@@ -171,6 +171,7 @@ let addProject = async (req,res) => {
 
     //slika je hardcodana jer nema bas smisla imati custom sliku projekta
     project.url_slike = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+    project.partnerID = projectData.partnerID
 
     try{
         let result = await methods.pushData(project, 'projects')
@@ -202,9 +203,6 @@ let userProfile = async (req, res) => {
 let  home = async (req, res) => {
 
     let db = await connect()
-
-    console.log(methods.varijabla)
-
     let numberOfDocs = {}
 
     numberOfDocs.projectsCounter = await db.collection("projects").countDocuments();
@@ -215,5 +213,5 @@ let  home = async (req, res) => {
 
 
 
-export default { home, registration, login, secret, userProfile , getProjects, addProject, getPartnerProjects,   
+export default { home, registration, login, userProfile , getProjects, addProject, getPartnerProjects,   
                  getPartners, changePassword, getOneProject, getOnePartner, changeProjectInfo, changePartnerInfo  } 

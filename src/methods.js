@@ -18,7 +18,7 @@ let methods  = {
 
     
 
-    // jer je identičan postupak za dodavanje partnera i projekta
+    // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
         data.createdDate = Date.now()
         
@@ -32,11 +32,17 @@ let methods  = {
         
         try{
             let insertResult = await db.collection(collectionName).insertOne(data);
-            if(insertResult && insertResult.insertedId){ 
-    
+            let id = insertResult.insertedId
+            if(insertResult && id){ 
+                // pushanje projectId-a u listu projekata određenog partnera
+                if(collectionName === 'projects'){
+                    await db.collection('partners').updateOne( { _id: ObjectID(data.partnerID) },{ $addToSet:{ "projects": id}}, true);
+                }
+                
                 return data
             }
         }
+        
         catch(e){
                 throw new Error("Error accured during inserting project or partner")
         } 
@@ -80,7 +86,6 @@ let methods  = {
         //vidjeti moze li se to izvesti kako bolje
         let project = {
                 ime_poslodavca: projectData.company,
-                id_poslodavca: ObjectID('5f1c089101848e36e0aebf3d'), //hardcodano za sad
                 opis_projekta: projectData.project_description,
                 datum_dodavanja: Date.now(),
                 email_kontakt_osobe: projectData.project_contact,
@@ -101,7 +106,7 @@ let methods  = {
         let db = await connect()
 
         let selekcija = {}
-
+        
         if(query._any){
             let pretraga = query._any
             let terms = pretraga.split(' ')
@@ -111,14 +116,15 @@ let methods  = {
                 $and: []
             }
 
-            
+            /*
             terms.map(function(term){
                 let or = { $or: [] };
                 atributi.map(or.$or.push({ [atribut]: new RegExp(term, "i") }));
                 selekcija.$and.push(or);
             })
+            */
             
-            /*
+            
             terms.forEach((term) => {
                 let or = {
                     $or: []
@@ -129,9 +135,9 @@ let methods  = {
                 })
                 selekcija.$and.push(or);
             });
-            */
             
-    }
+            
+     }
 
         let cursor = await db.collection(collectionName).find(selekcija).sort({ime_poslodavca: 1})
 

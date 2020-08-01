@@ -14,7 +14,6 @@ app.use(cors())
 app.use(express.json())
 
 app.get('/', routes.home)
-app.get('/secret', [auth.verify], routes.secret)
 app.get('/profile', routes.userProfile)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
