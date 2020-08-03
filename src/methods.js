@@ -20,7 +20,6 @@ let methods  = {
 
     // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
-        data.createdDate = Date.now()
         
         if (!methods.validateData(data)) {
             res.json({status: 'Missing data'})
@@ -33,10 +32,15 @@ let methods  = {
         try{
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
+            
+
             if(insertResult && id){ 
                 // pushanje projectId-a u listu projekata određenog partnera
                 if(collectionName === 'projects'){
-                    await db.collection('partners').updateOne( { _id: ObjectID(data.partnerID) },{ $addToSet:{ "projects": id}}, true);
+                    let partnerID = data.partnerID
+                    delete data.partnerID
+                    
+                    await db.collection('partners').updateOne( { _id: ObjectID(partnerID) },{$addToSet:{ "projects": id}}, true);
                 }
                 
                 return data
@@ -85,16 +89,16 @@ let methods  = {
     mapAttributes : async (projectData) =>{
         //vidjeti moze li se to izvesti kako bolje
         let project = {
-                ime_poslodavca: projectData.company,
-                opis_projekta: projectData.project_description,
-                datum_dodavanja: Date.now(),
-                email_kontakt_osobe: projectData.project_contact,
-                tehnologije: projectData.project_technologies,
-                preference: projectData.project_prefrences,
-                potrebe_za_obavljanje: projectData.project_required,
-                trajanje: projectData.project_duration,
-                lokacija: projectData.project_location,
-                napomena: projectData.project_note,
+                company: projectData.company,
+                project_description: projectData.project_description,
+                date_created: Date.now(),
+                contact: projectData.contact,
+                technologies: projectData.technologies,
+                prefrences: projectData.prefrences,
+                requirements: projectData.requirements,
+                duration: projectData.duration,
+                location: projectData.location,
+                note: projectData.note,
         }
         return project
     },
@@ -139,10 +143,11 @@ let methods  = {
             
      }
 
-        let cursor = await db.collection(collectionName).find(selekcija).sort({ime_poslodavca: 1})
+        let cursor = await db.collection(collectionName).find(selekcija).sort({company: 1})
 
         let results =  await cursor.toArray()
-        
+
+
         return results
     },
 

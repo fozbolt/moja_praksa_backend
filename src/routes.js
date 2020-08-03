@@ -42,7 +42,11 @@ let getPartnerProjects  = async (req,res) =>{
 let getOnePartner = async (req,res) =>{
     let id = req.params.id
     let db = await connect()
+
     let result = await db.collection("partners").findOne({_id: ObjectID(id)})
+
+    result.id = result._id
+    delete result._id
 
     res.json(result)
 }
@@ -94,15 +98,25 @@ let registration = async (req, res) => {
         let partner 
 
         //dodavanje korisnika automatski u partnere čim se registrira
-        if (user.accountType === 'Poslodavac')   partner = await methods.addPartner(user)
-        
-        res.json({status: `user & partner with id ${partner._id} added`})
+        if (user.accountType === 'Poslodavac') partner = await methods.addPartner(user)
+
+
+        res.json({status: `user with id ${user._id} added`})
 
     } catch (e) {
         res.status(500).json({
             error: e.message,
         });
     }
+}
+
+let chosenProjects = async (req, res) => {
+    let data = req.body
+    let db = await connect()
+
+    let result = await db.collection('users').updateOne( { _id: ObjectID(data.user) },{ $set:{ "chosenProjects": data.selection} });
+    
+    res.json(result)
 }
 
 
@@ -141,7 +155,7 @@ let changePartnerInfo = async (req,res) => {
 let getProjects = async (req, res) => {
     
     let query = req.query
-    let atributi = ["ime_poslodavca", "tehnologije", "lokacija", "opis_projekta"] 
+    let atributi = ["company", "technologies", "location", "project_description"] 
 
     let result = await methods.search(query, atributi, 'projects')
 
@@ -152,10 +166,10 @@ let getProjects = async (req, res) => {
 
 let getPartners = async (req, res) => {  
     let query = req.query
-    let atributi = ["ime_poslodavca", "opis"] 
+    let atributi = ["company", "about_us"] 
 
     let result = await methods.search(query, atributi, 'partners')
-    
+
     res.json(result)
 }
 
@@ -170,7 +184,7 @@ let addProject = async (req,res) => {
     let project = await methods.mapAttributes(projectData)
 
     //slika je hardcodana jer nema bas smisla imati custom sliku projekta
-    project.url_slike = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+    project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
     project.partnerID = projectData.partnerID
 
     try{
@@ -213,5 +227,5 @@ let  home = async (req, res) => {
 
 
 
-export default { home, registration, login, userProfile , getProjects, addProject, getPartnerProjects,   
+export default { home, registration, login, userProfile , getProjects, addProject, getPartnerProjects, chosenProjects,
                  getPartners, changePassword, getOneProject, getOnePartner, changeProjectInfo, changePartnerInfo  } 

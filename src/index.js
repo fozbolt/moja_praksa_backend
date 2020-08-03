@@ -27,6 +27,6 @@ app.patch('/projects/:id/:update', routes.changeProjectInfo)
 app.delete('/projects/:id/:update', routes.changeProjectInfo)
 app.patch('/partners/:id', routes.changePartnerInfo)
 app.get('/partnerProjects/:id', routes.getPartnerProjects)
-
+app.post('/chosen_projects', routes.chosenProjects)
 
 app.listen(port, () => console.log(`Slušam na portu ${port}!`))

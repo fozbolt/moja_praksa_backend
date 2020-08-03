@@ -28,20 +28,20 @@ export default {
 
 
         if(userData.jmbag){
-            user.accountType = 'Student',
+            user.account_type = 'Student',
             user.JMBAG = userData.jmbag,
             user.surname = userData.surname,
             user.technology = userData.technology
             user.year= userData.year
         } else{
-            user.accountType = 'Poslodavac',
+            user.account_type = 'Poslodavac',
             user.technology= userData.technology,
             user.adress = userData.adress,
-            user.aboutUs = userData.about_us,
+            user.about_us = userData.about_us,
             user.website = userData.website,
-            user.contactEmail = userData.contact_email,
-            user.contactNumber = userData.telephone_number
-            user.url_slike = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80'
+            user.contact_email = userData.contact_email,
+            user.contact_number = userData.telephone_number
+            user.img_url = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80'
         }
         
 
