@@ -24,10 +24,11 @@ let getOneProject = async (req,res) =>{
 
 let getPartnerProjects  = async (req,res) =>{
 
-    let id = req.params.id
+    let partnerID = req.params.id
     let db = await connect()
 
     //nađi projekte koje pripadaju određenom poslodavcu
+    /*
     let find_IDs= await db.collection("partners").find({_id: ObjectID(id)})
     let result =  await find_IDs.toArray()
 
@@ -35,9 +36,12 @@ let getPartnerProjects  = async (req,res) =>{
 
     let cursor2 = await db.collection("projects").find({_id: {$in: filtered_IDs}})
     let finalResult =  await cursor2.toArray()
+    */
+    let cursor= await db.collection("projects").find({partnerID: ObjectID(partnerID)})
+
+    let results =  await cursor.toArray()
     
-    
-    res.send(finalResult)
+    res.send(results)
 
 }
 
@@ -97,14 +101,13 @@ let registration = async (req, res) => {
     let newUser = req.body;
 
     try {
-        let user = await auth.register(newUser);
-        let partner 
+        let partner = await auth.register(newUser);
+        let result 
 
         //dodavanje korisnika automatski u partnere čim se registrira
-        if (user.accountType === 'Poslodavac') partner = await methods.addPartner(user)
+        if (newUser.account_type === ('poslodavac' || 'Poslodavac'))    result = await methods.addPartner(partner)
 
-
-        res.json({status: `user with id ${user._id} added`})
+        res.json({status: `user with id ${result} added`})
 
     } catch (e) {
         res.status(500).json({
@@ -129,8 +132,11 @@ let changeProjectInfo = async (req,res) => {
     let project = req.body 
     delete project.id;
 
+    //ako nema podataka u body, znači da se traži delete pa inicijaliziramo prazan objekt u koji stavljamo jedino podatke potrebne za delete, inače ide update
     if (project) project = await methods.mapAttributes(project)
     else         project = {}
+
+    // if (!project) project = {}       --varijanta bez mapiranja ako su nazivi atributa isti pa ne treba mapirati
     
 
     project.id = req.params.id;
@@ -180,18 +186,18 @@ let getPartners = async (req, res) => {
 let addProject = async (req,res) => {
 
     let projectData = req.body
-    delete projectData._id
-
-  
-    // uskladiti imena atributa da ne treba toliko mapirati
+    
+    // pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba
     let project = await methods.mapAttributes(projectData)
-
+    
     //slika je hardcodana jer nema bas smisla imati custom sliku projekta
     project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
-    project.partnerID = projectData.partnerID
+    project.partnerID = ObjectID(projectData.partnerID)
 
     try{
+        
         let result = await methods.pushData(project, 'projects')
+        
         res.send(`project with id  ${result} added.`)
 
     }

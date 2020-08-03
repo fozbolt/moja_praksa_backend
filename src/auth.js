@@ -1,6 +1,7 @@
 import connect from './db'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { ObjectID } from 'mongodb'
 
 (async () => {
     let db = await connect();
@@ -19,29 +20,34 @@ export default {
         }
 
         let db = await connect()
+
+        let partner = {}
         
         let user = {
             email: userData.email,
             password: await bcrypt.hash(userData.password, 8),
-            name: userData.name,
+            date_created: Date.now()
         }
 
 
         if(userData.jmbag){
             user.account_type = 'Student',
-            user.JMBAG = userData.jmbag,
+            user.jmbag = userData.jmbag,
+            user.name = userData.name,
             user.surname = userData.surname,
             user.technology = userData.technology
             user.year= userData.year
         } else{
             user.account_type = 'Poslodavac',
-            user.technology= userData.technology,
-            user.adress = userData.adress,
-            user.about_us = userData.about_us,
-            user.website = userData.website,
-            user.contact_email = userData.contact_email,
-            user.contact_number = userData.telephone_number
-            user.img_url = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80'
+            partner.company = userData.name
+            partner.technology= userData.technology,
+            partner.adress = userData.adress,
+            partner.about_us = userData.about_us,
+            partner.website = userData.website,
+            partner.date_created = Date.now()
+            partner.contact_email = userData.contact_email,
+            partner.contact_number = userData.telephone_number
+            partner.img_url = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80'
         }
         
 
@@ -50,8 +56,9 @@ export default {
       
             if(insertResult && insertResult.insertedId){
                 delete user.password
+                partner.userID = ObjectID(insertResult.insertedId)
 
-                return user 
+                return partner 
             }
         }
         catch(e){

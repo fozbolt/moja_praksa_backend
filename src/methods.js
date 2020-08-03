@@ -10,6 +10,7 @@ let methods  = {
     validateData : (data) => {
         for (const [key, value] of Object.entries(data)) {
             if(!value){
+
               return false
             }
         }
@@ -20,32 +21,35 @@ let methods  = {
 
     // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
-        
         if (!methods.validateData(data)) {
             res.json({status: 'Missing data'})
             return
         }
             
         let db = await connect()
-
         
         try{
+            
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
-            
 
             if(insertResult && id){ 
-                // pushanje projectId-a u listu projekata određenog partnera
+                 // 1. način
+                 return id
+                }
+                
+                /*
+                // pushanje projectId-a u listu projekata određenog partnera, 2. način
+
                 if(collectionName === 'projects'){
                     let partnerID = data.partnerID
                     delete data.partnerID
                     
                     await db.collection('partners').updateOne( { _id: ObjectID(partnerID) },{$addToSet:{ "projects": id}}, true);
                 }
-                
-                return data
+                */
+                return id
             }
-        }
         
         catch(e){
                 throw new Error("Error accured during inserting project or partner")
@@ -55,10 +59,12 @@ let methods  = {
 
    
     addPartner : async (partnerData) => {
-
+        
         try{
+            delete partnerData.account_type
+
             let result = await methods.pushData(partnerData, 'partners')
-    
+
             return result
         }
         catch(e){
@@ -72,29 +78,39 @@ let methods  = {
         let db = await connect();
         let result
     
-        //da se ne salje i ID u update
         let id = project.id
         delete project.id
-                                            //za ovakav update više odgovara put, a ne patch?
-        if (project.updateDoc==='true')    result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: project });
-        else                               result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } );
-                                
+        
+        //za ovakav update više odgovara put, a ne patch?
+        if (project.updateDoc==='true')     result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: project });
+        else                                result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
+
+        // 2 način
+        /*
+        else{
+            await db.collection('partners').updateOne( {}, {
+                $pull: { _id: ObjectID(id)  } } 
+              )
+
+            result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } );
+        } 
+        */
 
         if (result.modifiedCount == 1 || result.deletedCount == 1)  return 'success'
         else return 'fail'
     },
 
 
-
+    //nece trebati ako su imena atributa ista
     mapAttributes : async (projectData) =>{
-        //vidjeti moze li se to izvesti kako bolje
+     
         let project = {
                 company: projectData.company,
-                project_description: projectData.project_description,
+                project_description: projectData.description,
                 date_created: Date.now(),
                 contact: projectData.contact,
                 technologies: projectData.technologies,
-                prefrences: projectData.prefrences,
+                preferences: projectData.preferences,
                 requirements: projectData.requirements,
                 duration: projectData.duration,
                 location: projectData.location,
