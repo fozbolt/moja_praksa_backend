@@ -15,6 +15,9 @@ let getOneProject = async (req,res) =>{
     // u mongu kada pretrazujemo po id-u, moramo omotati s posebnim konstruktorom objectID
     let result = await db.collection("projects").findOne({_id: ObjectID(id)})
 
+    result.id = result._id
+    delete result._id
+
     res.json(result)
 }
 

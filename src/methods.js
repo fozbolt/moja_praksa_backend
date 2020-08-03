@@ -147,6 +147,11 @@ let methods  = {
 
         let results =  await cursor.toArray()
 
+        results.forEach(doc => {
+            doc.id = doc._id
+            delete doc._id
+        })
+
 
         return results
     },
