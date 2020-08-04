@@ -20,13 +20,14 @@ app.post('/login', routes.login)
 app.get('/projects', routes.getProjects)
 app.post('/projects', routes.addProject)
 app.get('/partners', routes.getPartners)
-app.patch('/register', [auth.verify], routes.changePassword)
+app.patch('/register', [auth.isValidUser], routes.changePassword) //register?
 app.get('/projects/:id', routes.getOneProject)
 app.get('/partners/:id', routes.getOnePartner)
 app.patch('/projects/:id/:update', routes.changeProjectInfo)
 app.delete('/projects/:id/:update', routes.changeProjectInfo)
-app.patch('/partners/:id', routes.changePartnerInfo)
+app.patch('/partners/:id/:update', routes.changePartnerInfo) //promijeniti u 'partner'?
+app.delete('/partners/:id/:update', routes.changePartnerInfo)
 app.get('/partner_projects/:id', routes.getPartnerProjects)
-app.post('/chosen_projects', routes.chosenProjects)
+app.post('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.chosenProjects)
 
 app.listen(port, () => console.log(`Slušam na portu ${port}!`))

@@ -61,9 +61,8 @@ let getOnePartner = async (req,res) =>{
 
 let changePassword = async (req,res) => {
     let data = req.body
-    console.log(req.jwt.email)
-
-    //dolazi iz metode verify
+    
+    //dolazi iz metode isValidUser
     let email = req.jwt.email
 
     if (data.newPassword && data.oldPassword){
@@ -153,8 +152,10 @@ let changePartnerInfo = async (req,res) => {
     let partnerInfo = req.body
     delete partnerInfo._id;
     partnerInfo.id = req.params.id;
+    partnerInfo.updateDoc = req.params.update 
 
-    response = await methods.changeInfo(partnerInfo, 'partners', false)
+
+    response = await methods.changeInfo(partnerInfo, 'partners')
 
     res.send(response)
 }
@@ -192,7 +193,8 @@ let addProject = async (req,res) => {
     
     //slika je hardcodana jer nema bas smisla imati custom sliku projekta
     project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
-    project.partnerID = ObjectID(projectData.partnerID)
+    project.userID = projectData.userID
+    
 
     try{
         

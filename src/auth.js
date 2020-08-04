@@ -97,22 +97,28 @@ export default {
         }
     },
 
-    //ako nam verify prode zovemo next, ako ne prode javljamo gresku
-    async verify(req,res, next){
+    //ako nam isValidUser prode zovemo next, ako ne prode javljamo gresku
+    async isValidUser(req,res, next){
+        console.log('tu sam223:', )
         try{
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
+            
+          
     
             if (type != 'Bearer'){
-                console.log('type:' + type)
+                //console.log('type:' + type)
+               
                 res.status(401).send()
                 return false;
             }
             else {
                 //spremati u jwt kljuc podatke u korisniku da se moze na bilo kojem mjestu
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
+              
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
+                res.locals.sth = 2
                 return next()
             }
         }
@@ -121,10 +127,36 @@ export default {
         }
     },
 
+    async isStudent(req,res, next){
+        console.log('tu sam22:', )
+        console.log({sth})
+
+        try{
+            console.log('tu sam22:', )
+    
+            if (req.body.account_type == ('student' || 'Student')){
+                console.log(req.jwt)
+                return next()
+                console.log('tu sam2')
+                
+            }
+            else {
+                res.status(401).send()
+                return false;
+
+            }
+        }
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+
+
     async changeUserPassword(email, oldPassword, newPassword){
         let db = await connect()
-
+        
         let user = await db.collection("users").findOne({email : email})
+        
 
         if (user && user.password && (await bcrypt.compare(oldPassword, user.password))){
             let newPasswordTransformed = await bcrypt.hash(newPassword, 8)

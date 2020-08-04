@@ -21,6 +21,7 @@ let methods  = {
 
     // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
+
         if (!methods.validateData(data)) {
             res.json({status: 'Missing data'})
             return
@@ -29,6 +30,13 @@ let methods  = {
         let db = await connect()
         
         try{
+
+            //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
+            if(collectionName === 'projects') {
+                let getPartner  = await db.collection("partners").findOne({userID: ObjectID(data.userID)})
+                data.partnerID = getPartner._id
+            }
+
             
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
@@ -74,15 +82,15 @@ let methods  = {
 
 
     // identičan postupak za promjenu info partnera i projekta
-    changeInfo : async (project, collectionName) => {
+    changeInfo : async (data, collectionName) => {
         let db = await connect();
         let result
     
-        let id = project.id
-        delete project.id
+        let id = data.id
+        delete data.id
         
         //za ovakav update više odgovara put, a ne patch?
-        if (project.updateDoc==='true')     result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: project });
+        if (data.updateDoc==='true')        result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: data });
         else                                result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
 
         // 2 način
