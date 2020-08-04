@@ -99,13 +99,12 @@ export default {
 
     //ako nam isValidUser prode zovemo next, ako ne prode javljamo gresku
     async isValidUser(req,res, next){
-        console.log('tu sam223:', )
+    
         try{
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
             
-          
     
             if (type != 'Bearer'){
                 //console.log('type:' + type)
@@ -118,7 +117,8 @@ export default {
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
               
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
-                res.locals.sth = 2
+                res.locals.account_type = req.jwt.account_type
+
                 return next()
             }
         }
@@ -127,17 +127,27 @@ export default {
         }
     },
 
+
+
+    checkAuthorization = (authorizationTitle, accountType) =>{
+        
+        if (authorizationTitle ===  'Student' || accountType ===  'Student' ) return true
+        else if (authorizationTitle ===  'Poslodavac' || accountType ===  'Poslodavac' ) return true
+        else if (authorizationTitle ===  'Admin' || accountType ===  'Admin' ) return true
+
+        else return false
+
+    },
+
+
     async isStudent(req,res, next){
-        console.log('tu sam22:', )
-        console.log({sth})
+        
+        let accountType = res.locals.account_type
 
         try{
-            console.log('tu sam22:', )
-    
-            if (req.body.account_type == ('student' || 'Student')){
-                console.log(req.jwt)
-                return next()
-                console.log('tu sam2')
+
+            if (checkAuthorization('Student', accountType)){
+                return next() 
                 
             }
             else {
@@ -150,6 +160,53 @@ export default {
             return res.status(401).send()
         }
     },
+
+
+    async isPartner(req,res, next){
+        
+        let accountType = res.locals.account_type
+
+        try{
+            
+            if (accountType ===  'Poslodavac' || accountType ===  'poslodavac' ){
+                return next() 
+                
+            }
+            else {
+                res.status(401).send()
+                return false;
+
+            }
+        }
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+
+/*
+    async isAdmin(req,res, next){
+        
+        let accountType = res.locals.account_type
+
+        try{
+            
+            if (accountType ===  'Admin' || accountType ===  'admin' ){
+                return next() 
+                
+            }
+            else {
+                res.status(401).send()
+                return false;
+
+            }
+        }
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+*/
+
+    
 
 
     async changeUserPassword(email, oldPassword, newPassword){

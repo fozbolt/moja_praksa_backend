@@ -70,7 +70,7 @@ let changePassword = async (req,res) => {
         
 
         if (result) {
-            res.status(201).send();
+            res.status(201).send({status: 'Success'});
         } 
         else {
             res.status(500).json({ error: 'Server error' });
@@ -209,6 +209,33 @@ let addProject = async (req,res) => {
 }
 
 
+let createPartner = async (req,res) => {
+
+    let partnerData = req.body
+    
+    // ako će trebati kad stjepan implementira
+    //let project = await methods.mapAttributes(projectData)
+    
+    //dok stjepan ne implementira ce biti ovako hardcodano
+    partnerData.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+    
+    //za raspoznavanje koji partneri su se sami kreirali, a koji ne
+    partnerData.created_by_admin = true
+    
+
+    try{
+        
+        let partnerID = await methods.pushData(partnerData, 'partners')
+        
+        res.send(`partner with id  ${partnerID} added.`)
+
+    }
+    catch(e){
+        res.status(500).json({ error: e.message});
+    }   
+}
+
+
 
 //testna
 let userProfile = async (req, res) => {
@@ -239,4 +266,4 @@ let  home = async (req, res) => {
 
 
 export default { home, registration, login, userProfile , getProjects, addProject, getPartnerProjects, chosenProjects,
-                 getPartners, changePassword, getOneProject, getOnePartner, changeProjectInfo, changePartnerInfo  } 
+                 getPartners, changePassword, getOneProject, getOnePartner, changeProjectInfo, changePartnerInfo, createPartner  } 
