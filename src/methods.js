@@ -23,8 +23,8 @@ let methods  = {
     pushData : async (data, collectionName) => {
 
         if (!methods.validateData(data)) {
-            res.json({status: 'Missing data'})
-            return
+            throw new Error("Error accured during inserting project or partner")
+            
         }
             
         let db = await connect()

@@ -22,20 +22,20 @@ app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bo
 
 //projects
 app.get('/projects', routes.getProjects)
-app.post('/projects', routes.addProject)
+app.post('/projects',[auth.isValidUser], [auth.isPartner], routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
-app.patch('/projects/:id/:update', routes.changeProjectInfo)
-app.delete('/projects/:id/:update', routes.changeProjectInfo)
+app.patch('/projects/:id/:update', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo)
+app.delete('/projects/:id/:update', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
 app.post('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.chosenProjects)
 
 
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
-app.patch('/partners/:id/:update', routes.changePartnerInfo) //promijeniti u 'partner'?
-app.delete('/partners/:id/:update', routes.changePartnerInfo)
+app.patch('/partners/:id/:update', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) //promijeniti u 'partner'?
+app.delete('/partners/:id/:update', [auth.isValidUser], [auth.isPartner],  routes.changePartnerInfo)
 app.get('/partner_projects/:id', routes.getPartnerProjects)
-app.post('/partners', routes.createPartner)
+app.post('/partners', [auth.isValidUser], [auth.isPartner], routes.createPartner) 
 
 
 app.listen(port, () => console.log(`Slušam na portu ${port}!`))

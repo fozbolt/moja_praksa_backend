@@ -97,9 +97,9 @@ export default {
         }
     },
 
-    //ako nam isValidUser prode zovemo next, ako ne prode javljamo gresku
+
     async isValidUser(req,res, next){
-    
+        
         try{
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
@@ -117,95 +117,60 @@ export default {
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
               
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
-                res.locals.account_type = req.jwt.account_type
-
                 return next()
             }
         }
         catch(e){
+
             return res.status(401).send()
         }
     },
 
 
-
-    checkAuthorization = (authorizationTitle, accountType) =>{
-        
-        if (authorizationTitle ===  'Student' || accountType ===  'Student' ) return true
-        else if (authorizationTitle ===  'Poslodavac' || accountType ===  'Poslodavac' ) return true
-        else if (authorizationTitle ===  'Admin' || accountType ===  'Admin' ) return true
-
-        else return false
-
-    },
 
 
     async isStudent(req,res, next){
         
-        let accountType = res.locals.account_type
+        let accountType = req.jwt.account_type
 
         try{
+            
+            if (accountType ===  'Student' )  return next() 
+            //fali jos return false u else ako nece funkcionirati
+            else  res.status(401).send()
 
-            if (checkAuthorization('Student', accountType)){
-                return next() 
-                
-            }
-            else {
-                res.status(401).send()
-                return false;
-
-            }
         }
         catch(e){
             return res.status(401).send()
         }
     },
+
 
 
     async isPartner(req,res, next){
         
-        let accountType = res.locals.account_type
+        let accountType = req.jwt.account_type
 
         try{
-            
-            if (accountType ===  'Poslodavac' || accountType ===  'poslodavac' ){
+            if (accountType ===  'Poslodavac'   ||   accountType === 'Admin')  {
+                //poslodavac nema pristup kreiranju i brisanju poslodavaca odnosno partnera 
+                if(accountType === 'Poslodavac' && req.path === 'partners' && (req.method === 'POST' || req.method === 'DELETE') ){
+                        res.status(401).send()
+                        return false
+                }
+
                 return next() 
-                
             }
-            else {
-                res.status(401).send()
-                return false;
-
+            else  {
+                res.status(401).send()}
+                return false
             }
-        }
-        catch(e){
-            return res.status(401).send()
-        }
-    },
 
-/*
-    async isAdmin(req,res, next){
         
-        let accountType = res.locals.account_type
-
-        try{
-            
-            if (accountType ===  'Admin' || accountType ===  'admin' ){
-                return next() 
-                
-            }
-            else {
-                res.status(401).send()
-                return false;
-
-            }
-        }
         catch(e){
             return res.status(401).send()
         }
     },
-*/
-
     
 
 
