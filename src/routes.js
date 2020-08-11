@@ -6,6 +6,30 @@ import methods from './methods.js'
 
 export default {
 
+    //refaktorirati
+    async submitDiary (req,res) {
+        let userID = req.body.user_id
+        let user = {}
+        user.journal = req.body.journal
+        
+
+        let db = await connect()
+        let result
+
+        try{
+            result = await db.collection('users').updateOne( { _id: ObjectID(userID) },{ $set: user });       
+        }
+        
+        catch(e){
+            console.log(e)
+        }
+
+        if (result.modifiedCount == 1)  return 'success'
+        else return 'fail'
+
+    },
+
+
     async getOneProject (req,res) {
         //a kad bi bilo ?id=23432 onda dohvacamo s req.query, a url parametre ovako:
         let id = req.params.id

@@ -19,6 +19,7 @@ app.get('/profile', routes.userProfile)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
 app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bolje change_password, ali onda je to nova ruta
+app.patch('/journal', routes.submitDiary)
 
 //projects
 app.get('/projects', routes.getProjects)
