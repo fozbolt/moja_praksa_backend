@@ -15,7 +15,6 @@ app.use(express.json())
 
 
 app.get('/', routes.home)
-app.get('/profile', routes.userProfile)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
 app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bolje change_password, ali onda je to nova ruta

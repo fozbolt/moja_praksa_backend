@@ -264,23 +264,7 @@ async getProjects (req, res)  {
             res.status(500).json({ error: e.message});
         }   
     },
-
-
-
-//testna
-
-    async userProfile (req, res)  {
-        
-        let db = await connect()
-
-        //nacin kako se pristupa podacima u mongu je kursor
-        let cursor = await db.collection("users").find();
-
-        let results = await cursor.toArray()
-
-        //console.log(results)
-        res.json(results)
-},
+    
 
 
     async home (req, res)  {
