@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 import express from 'express';
+import bodyParser from 'body-parser';
 import routes from './routes'; 
 import cors from 'cors'
 import auth from './auth.js'
@@ -11,7 +12,10 @@ const app = express() // instanciranje aplikacije
 const port = 3000 // port na kojem će web server slušati
 
 app.use(cors())
-app.use(express.json())
+
+app.use(bodyParser.json({limit: '50mb', extended: true}))
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
+
 
 
 app.get('/', routes.home)
