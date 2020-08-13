@@ -6,26 +6,94 @@ import methods from './methods.js'
 
 export default {
 
+    async changeInstructions(req, res) {
+        //poboljsati
+        let data = {}
+        data.instructions = req.body
+        let db = await connect();
+        let content = await db.collection('content').findOne();
+        data.id = content._id
+        data.updateDoc = 'true'
+        
+        try{
+            
+            let result = await methods.changeInfo(data, 'content')
+            
+            res.send(`${result} at changing instructions.`)
+
+        }
+        catch(e){
+            res.status(500).json({ error: e.message});
+        }  
+
+    },
+
+
+    async getInstructions(req, res) {
+        let id = req.params.id
+
+        let db = await connect()
+
+        let result = await db.collection("content").findOne()
+
+        result.id = result._id
+        delete result._id
+
+        res.json(result.instructions)
+    },
+
+    async getApprovedProject(req, res) {
+        //testna za sad
+        res.json({message: 'here is your approved project'})
+    },
+
+    async applicationForm (req, res) {
+
+        let formData = {}
+        formData.application = req.body.form
+        formData.updateDoc = 'true'
+        formData.id = req.body.userID
+
+        let db = await connect()
+
+        let appExists = await db.collection('users').find( { _id: ObjectID(formData.id) , application: { $exists: true} } )
+
+        try{
+            if (appExists == true) throw new Error("Error accured during inserting")
+            
+            let result = await methods.changeInfo(formData, 'users')
+            
+            res.send(`${result} at inserting application.`)
+
+        }
+        catch(e){
+            res.status(500).json({ error: e.message});
+        }  
+    
+    },
+
+
     //refaktorirati
     async submitDiary (req,res) {
-        let userID = req.body.user_id
-        let user = {}
-        user.journal = req.body.journal
-        
+        let data = {
+            userID : req.body.user_id,
+            journal : req.body.journal
+        }
 
         let db = await connect()
         let result
 
         try{
-            result = await db.collection('users').updateOne( { _id: ObjectID(userID) },{ $set: user });       
+            result = await db.collection('journals').insertOne(data)
+            // ne radi
+            if (!result.insertedCount) throw new Error("Error accured during inserting")
         }
         
         catch(e){
             console.log(e)
         }
 
-        if (result.modifiedCount == 1)  return 'success'
-        else return 'fail'
+        res.json({message: 'upload successful'})
 
     },
 

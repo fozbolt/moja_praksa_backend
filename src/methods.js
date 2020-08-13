@@ -88,10 +88,15 @@ let methods  = {
     
         let id = data.id
         delete data.id
+
         
         //za ovakav update više odgovara put, a ne patch?
-        if (data.updateDoc==='true')        result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: data });
-        else                                result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
+        if (data.updateDoc==='true') {
+            delete data.updateDoc
+            result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: data, });
+        } 
+            
+        else    result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
 
         // 2 način
         /*
