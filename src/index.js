@@ -26,24 +26,27 @@ app.patch('/journal', routes.submitDiary)
 app.post('/application_form', routes.applicationForm)
 app.get('/instructions', routes.getInstructions)
 app.patch('/instructions', routes.changeInstructions)
+app.patch('/template', routes.uploadTemplate)
+app.get('/template', routes.getTemplate)
 
 //projects
 app.get('/projects', routes.getProjects)
-app.post('/projects', [auth.isPartner], routes.addProject)
+app.post('/projects', routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
-app.patch('/projects/:id/:update',  [auth.isPartner], routes.changeProjectInfo)
-app.delete('/projects/:id/:update',  [auth.isPartner], routes.changeProjectInfo) 
-app.post('/chosen_projects', [auth.isStudent], routes.chosenProjects)
+app.patch('/projects/:id/:update',  routes.changeProjectInfo)
+app.delete('/projects/:id/:update',  routes.changeProjectInfo) 
+app.post('/chosen_projects', routes.chosenProjects)
 app.get('/approved_project', routes.getApprovedProject)
+app.get('/check_if_partner', routes.checkIfPartner)
 
 
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
-app.patch('/partners/:id/:update',  [auth.isPartner], routes.changePartnerInfo) //promijeniti u 'partner'?
-app.delete('/partners/:id/:update',  [auth.isPartner],  routes.changePartnerInfo)
+app.patch('/partners/:id/:update', routes.changePartnerInfo) //promijeniti u 'partner'?
+app.delete('/partners/:id/:update', routes.changePartnerInfo)
 app.get('/partner_projects/:id', routes.getPartnerProjects)
-app.post('/partners',  [auth.isPartner], routes.createPartner) 
+app.post('/partners',  routes.createPartner) 
 
 
 // //projects

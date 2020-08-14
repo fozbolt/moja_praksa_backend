@@ -174,13 +174,13 @@ export default {
     
 
 
-    async changeUserPassword(email, oldPassword, newPassword){
+    async changeUserPassword(userData){
         let db = await connect()
         
-        let user = await db.collection("users").findOne({email : email})
+        let user = await db.collection("users").findOne({email : userData.email})
         
 
-        if (user && user.password && (await bcrypt.compare(oldPassword, user.password))){
+        if (user && user.password && (await bcrypt.compare(userData.oldPassword, user.password))){
             let newPasswordTransformed = await bcrypt.hash(newPassword, 8)
 
             let result = await db.collection('users').updateOne(

@@ -6,6 +6,55 @@ import methods from './methods.js'
 
 export default {
 
+    //identicna kao getonePartner skoro, spojiti u jednu
+    async checkIfPartner(req, res) {
+
+            let db = await connect()
+
+            let id = req.body.
+
+            console.log(id)
+
+            const data = await db.collection("partners").findOne({userID : ObjectID(id)});
+
+            if(!data.account_type == "Poslodavac")  res.status(401).json({ error: e.message})
+
+            res.json (data);
+        
+    },
+
+    async getTemplate(req, res) {
+        let db = await connect()
+
+        let result = await db.collection("content").findOne()
+
+
+        res.json(result.template)
+
+    },
+
+    async uploadTemplate(req, res) {
+        //poboljsati
+        let data = {}
+        data.template = req.body
+        let db = await connect();
+        let content = await db.collection('content').findOne();
+        data.id = content._id
+        data.updateDoc = 'true'
+        
+        try{
+            
+            let result = await methods.changeInfo(data, 'content')
+            
+            res.send(`${result} at changing template.`)
+
+        }
+        catch(e){
+            res.status(500).json({ error: e.message});
+        }  
+
+    },
+
     async changeInstructions(req, res) {
         //poboljsati
         let data = {}
