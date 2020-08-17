@@ -115,8 +115,9 @@ export default {
             else {
                 //spremati u jwt kljuc podatke u korisniku da se moze na bilo kojem mjestu
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
-              
+  
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
+                
                 return next()
             }
         }
@@ -176,12 +177,12 @@ export default {
 
     async changeUserPassword(userData){
         let db = await connect()
-        
+ 
         let user = await db.collection("users").findOne({email : userData.email})
         
 
         if (user && user.password && (await bcrypt.compare(userData.oldPassword, user.password))){
-            let newPasswordTransformed = await bcrypt.hash(newPassword, 8)
+            let newPasswordTransformed = await bcrypt.hash(userData.newPassword, 8)
 
             let result = await db.collection('users').updateOne(
                 { _id: user._id },

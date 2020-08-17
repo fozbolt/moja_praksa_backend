@@ -6,18 +6,27 @@ import methods from './methods.js'
 
 export default {
 
-    //identicna kao getonePartner skoro, spojiti u jednu
+    // id usera svugdje traziti preko req.jwt!!?
+    async changeUserInfo (req, res)  {
+
+        let userInfo = req.body
+
+        userInfo.id = userInfo._id
+        delete userInfo._id
+
+        let response = await methods.changeInfo(userInfo, 'users')
+
+        res.send(response)
+    },
+
+    //skoro identicna kao getonePartner skoro, spojiti u jednu
     async checkIfPartner(req, res) {
+            let id = req.body._id
 
             let db = await connect()
-
-            let id = req.body.
-
-            console.log(id)
-
             const data = await db.collection("partners").findOne({userID : ObjectID(id)});
 
-            if(!data.account_type == "Poslodavac")  res.status(401).json({ error: e.message})
+            if(!data)  res.status(401).json({ error: 'user is not a partner'})
 
             res.json (data);
         
@@ -207,10 +216,10 @@ export default {
         let data = req.body
         
         //dolazi iz metode isValidUser
-        let email = req.jwt.email
+        data.email = req.jwt.email
 
         if (data.newPassword && data.oldPassword){
-            let result = await auth.changeUserPassword(email, data.oldPassword, data.newPassword)
+            let result = await auth.changeUserPassword(data)
             
 
             if (result) {

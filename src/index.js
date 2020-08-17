@@ -21,13 +21,15 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
 app.get('/', routes.home)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
-app.patch('/register',  routes.changePassword) //register? bolje change_password, ali onda je to nova ruta
+app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bolje change_password, ali onda je to nova ruta
 app.patch('/journal', routes.submitDiary)
 app.post('/application_form', routes.applicationForm)
 app.get('/instructions', routes.getInstructions)
 app.patch('/instructions', routes.changeInstructions)
 app.patch('/template', routes.uploadTemplate)
 app.get('/template', routes.getTemplate)
+app.patch('/user', [auth.isValidUser], routes.changeUserInfo)
+app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
 
 //projects
 app.get('/projects', routes.getProjects)
@@ -43,7 +45,7 @@ app.get('/check_if_partner', routes.checkIfPartner)
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
-app.patch('/partners/:id/:update', routes.changePartnerInfo) //promijeniti u 'partner'?
+app.patch('/partners/:id/:update', routes.changePartnerInfo) //promijeniti u 'partner'? i maknuti drugi parametar?
 app.delete('/partners/:id/:update', routes.changePartnerInfo)
 app.get('/partner_projects/:id', routes.getPartnerProjects)
 app.post('/partners',  routes.createPartner) 
