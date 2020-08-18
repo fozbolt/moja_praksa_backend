@@ -37,6 +37,7 @@ export default {
             user.surname = userData.surname,
             user.technology = userData.technology
             user.year= userData.year
+            user.journalID = false
         } else{
             user.account_type = 'Poslodavac',
             partner.company = userData.name

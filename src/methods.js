@@ -97,7 +97,6 @@ let methods  = {
             delete data._id
         }
         
-        
         //za ovakav update više odgovara put, a ne patch?
         if (data.updateDoc==='true') {
             delete data.updateDoc
@@ -116,7 +115,7 @@ let methods  = {
             result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } );
         } 
         */
-
+     
         if (result.modifiedCount == 1 || result.deletedCount == 1)  return 'success'
         else return 'fail'
     },

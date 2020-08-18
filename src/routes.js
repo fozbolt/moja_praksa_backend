@@ -132,23 +132,44 @@ export default {
     async submitDiary (req,res) {
         let data = {
             userID : req.body.user_id,
-            journal : req.body.journal
+            journal : req.body.journal,
+            upload_date :  Date.now() // Date(Date.now())
         }
 
         let db = await connect()
-        let result
+        let journal
 
         try{
-            result = await db.collection('journals').insertOne(data)
-            // ne radi
-            if (!result.insertedCount) throw new Error("Error accured during inserting")
+            let checkUser = await db.collection('users').findOne({_id : ObjectID(data.userID)})
+            
+            if (checkUser.journalID != false) throw new Error("Error accured during inserting")
+
+            journal = await db.collection('journals').insertOne(data)
+            
+            try {
+                let user = {
+                    id : data.userID,
+                    journalID : journal.insertedId,
+                    updateDoc : 'true'
+                }
+
+                await methods.changeInfo(user, 'users')
+
+                res.json({message: 'upload successful'})
+
+            }
+
+            catch(e){
+                res.send('Error accured during connecting journal ID with user')
+                return false;
+            }
+
         }
         
         catch(e){
-            console.log(e)
+            res.json({error:e.message })
         }
 
-        res.json({message: 'upload successful'})
 
     },
 
@@ -205,7 +226,7 @@ export default {
         let collectionName = data.collectionName
         delete data.collectionName
 
-        data.views = data.views + 1
+        data.views++
         
         let result = await methods.changeInfo(data, collectionName)
 
