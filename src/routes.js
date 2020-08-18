@@ -225,8 +225,6 @@ export default {
         data.updateDoc = 'true'
         let collectionName = data.collectionName
         delete data.collectionName
-
-        data.views++
         
         let result = await methods.changeInfo(data, collectionName)
 
