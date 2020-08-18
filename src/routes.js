@@ -11,9 +11,6 @@ export default {
 
         let userInfo = req.body
 
-        userInfo.id = userInfo._id
-        delete userInfo._id
-
         let response = await methods.changeInfo(userInfo, 'users')
 
         res.send(response)
@@ -157,19 +154,25 @@ export default {
 
 
     async getOneProject (req,res) {
-        //a kad bi bilo ?id=23432 onda dohvacamo s req.query, a url parametre ovako:
         let id = req.params.id
 
         let db = await connect()
 
-        //findOne ne pretvara rezultate u kursor koji treba pretvoriti u  array
-        // u mongu kada pretrazujemo po id-u, moramo omotati s posebnim konstruktorom objectID
-        let result = await db.collection("projects").findOne({_id: ObjectID(id)})
 
-        result.id = result._id
-        delete result._id
+        try{
+            let result = await db.collection("projects").findOne({_id: ObjectID(id)})
 
-        res.json(result)
+            result.id = result._id
+            delete result._id
+
+            res.json(result)
+        }
+
+        catch(e){
+            if (id == null)  res.json({error: 'id is undefined'})
+
+            else  res.json({error: e.message})
+        }
 },
 
 
@@ -196,18 +199,42 @@ export default {
 
 },
 
+    async addView(req, res){
+        let data = req.body
+        data.updateDoc = 'true'
+        let collectionName = data.collectionName
+        delete data.collectionName
 
-    async getOnePartner (req,res) {
-
-        let id = req.params.id
-        let db = await connect()
-
-        let result = await db.collection("partners").findOne({_id: ObjectID(id)})
-
-        result.id = result._id
-        delete result._id
+        data.views = data.views + 1
+        
+        let result = await methods.changeInfo(data, collectionName)
 
         res.json(result)
+    },
+
+
+    async getOnePartner (req,res) {
+        //ne vraca gresku kad je id nepostojeci
+
+        let id = req.params.id
+
+        let db = await connect()
+
+        try{
+            let result = await db.collection("partners").findOne({_id: ObjectID(id)})
+
+            result.id = result._id
+            delete result._id
+
+            res.json(result)
+        }
+
+        catch(e){
+            if (id == null)  res.json({error: 'id is undefined'})
+
+            else  res.json({error: e.message})
+        }
+        
 },
 
 
@@ -258,7 +285,7 @@ export default {
 
             //dodavanje korisnika automatski u partnere čim se registrira
             if (newUser.account_type === ('poslodavac' || 'Poslodavac'))    result = await methods.addPartner(partner)
-
+            console.log(result)
             res.json({status: `user with id ${result} added`})
 
         } catch (e) {
@@ -281,18 +308,20 @@ export default {
 
     async changeProjectInfo (req, res)  {
 
-        let project = req.body 
-        delete project.id;
+        let projectData = req.body 
+        delete projectData.id;
+        let project 
+
 
         //ako nema podataka u body, znači da se traži delete pa inicijaliziramo prazan objekt u koji stavljamo jedino podatke potrebne za delete, inače ide update
-        if (project) project = await methods.mapAttributes(project)
+        if (projectData) project = await methods.mapAttributes(projectData)
         else         project = {}
 
         // if (!project) project = {}       --varijanta bez mapiranja ako su nazivi atributa isti pa ne treba mapirati
         
 
         project.id = req.params.id;
-        project.updateDoc = req.params.update 
+        project.updateDoc = projectData.updateDoc
         
         let response = await methods.changeInfo(project, 'projects')
         
@@ -305,10 +334,8 @@ export default {
         let partnerInfo = req.body
         delete partnerInfo._id;
         partnerInfo.id = req.params.id;
-        partnerInfo.updateDoc = req.params.update 
 
-
-        response = await methods.changeInfo(partnerInfo, 'partners')
+        let response = await methods.changeInfo(partnerInfo, 'partners')
 
         res.send(response)
 },
@@ -341,15 +368,15 @@ async getProjects (req, res)  {
     async addProject (req, res)  {
 
         let projectData = req.body
-        
+
         // pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba
         let project = await methods.mapAttributes(projectData)
         
         //slika je hardcodana jer nema bas smisla imati custom sliku projekta
         project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
         project.userID = projectData.userID
+        project.views = 0
         
-
         try{
             
             let result = await methods.pushData(project, 'projects')
@@ -400,6 +427,9 @@ async getProjects (req, res)  {
 
         numberOfDocs.projectsCounter = await db.collection("projects").countDocuments();
         numberOfDocs.partnersCounter = await db.collection("partners").countDocuments();
+        numberOfDocs.studentsCounter = await db.collection("users").countDocuments({ account_type : 'Student'});
+
+        
 
         res.json(numberOfDocs)
     }

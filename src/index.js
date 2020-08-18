@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
 
 
 app.get('/', routes.home)
+app.patch('/', routes.addView)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
 app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bolje change_password, ali onda je to nova ruta
@@ -35,8 +36,8 @@ app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
 app.get('/projects', routes.getProjects)
 app.post('/projects', routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
-app.patch('/projects/:id/:update',  routes.changeProjectInfo)
-app.delete('/projects/:id/:update',  routes.changeProjectInfo) 
+app.patch('/projects/:id',  routes.changeProjectInfo)
+app.delete('/projects/:id',  routes.changeProjectInfo) 
 app.post('/chosen_projects', routes.chosenProjects)
 app.get('/approved_project', routes.getApprovedProject)
 app.get('/check_if_partner', routes.checkIfPartner)
@@ -45,8 +46,8 @@ app.get('/check_if_partner', routes.checkIfPartner)
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
-app.patch('/partners/:id/:update', routes.changePartnerInfo) //promijeniti u 'partner'? i maknuti drugi parametar?
-app.delete('/partners/:id/:update', routes.changePartnerInfo)
+app.patch('/partners/:id', routes.changePartnerInfo) //promijeniti u 'partner'? i maknuti drugi parametar?
+app.delete('/partners/:id', routes.changePartnerInfo)
 app.get('/partner_projects/:id', routes.getPartnerProjects)
 app.post('/partners',  routes.createPartner) 
 

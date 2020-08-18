@@ -9,7 +9,7 @@ let methods  = {
 
     validateData : (data) => {
         for (const [key, value] of Object.entries(data)) {
-            if(!value){
+            if(!value && key != 'views'){
 
               return false
             }
@@ -23,20 +23,22 @@ let methods  = {
     pushData : async (data, collectionName) => {
 
         if (!methods.validateData(data)) {
-            throw new Error("Error accured during inserting project or partner")
-            
+
+            throw new Error("Error accured during inserting project or partner")        
         }
             
         let db = await connect()
+
         
         try{
-
+            
+            
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
             if(collectionName === 'projects') {
                 let getPartner  = await db.collection("partners").findOne({userID: ObjectID(data.userID)})
                 data.partnerID = getPartner._id
             }
-
+            
             
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
@@ -70,9 +72,10 @@ let methods  = {
         
         try{
             delete partnerData.account_type
+            partnerData.views = 0
 
             let result = await methods.pushData(partnerData, 'partners')
-
+            console.log('res',result)
             return result
         }
         catch(e){
@@ -84,11 +87,16 @@ let methods  = {
     // identičan postupak za promjenu info partnera i projekta
     changeInfo : async (data, collectionName) => {
         let db = await connect();
-        let result
-    
-        let id = data.id
-        delete data.id
+        let result, id 
 
+        if (data._id == null){
+            id = data.id
+            delete data.id
+        }else{
+            id = data._id
+            delete data._id
+        }
+        
         
         //za ovakav update više odgovara put, a ne patch?
         if (data.updateDoc==='true') {
