@@ -7,22 +7,18 @@ import methods from './methods.js'
 export default {
     //slicna kao neke funkcije, spojiti?
     async getJournal (req,res) {
-        let studentID = req.body.id
-        console.log(req.body)
+        let journalID = req.params.id
+
         let db = await connect()
         console.log(asdas)
         try{
-            let student = await db.collection("users").findOne({_id: ObjectID(studentID)})
-            
-            let journal = await db.collection("journals").findOne({_id: ObjectID(student.journalID)})
-
+            let journal = await db.collection("journals").findOne({_id: ObjectID(journalID)})
             res.json(journal)
         }
 
         catch(e){
-            if (studentID == null)  res.json({error: 'id is undefined'})
-
-            else  res.json({error: e.message})
+            console.log(e)
+            res.json({error: e.message})
         }
     },
 

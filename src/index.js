@@ -35,7 +35,7 @@ app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
 //students
 //app.get('/students/:id', routes.getOneStudent)
 app.get('/students', routes.getStudents)
-app.get('/journal', routes.getJournal)
+app.get('/journal/:id', routes.getJournal)
 
 //projects
 app.get('/projects', routes.getProjects)
