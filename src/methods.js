@@ -86,7 +86,7 @@ let methods  = {
 
     // identičan postupak za promjenu info partnera i projekta
     changeInfo : async (data, collectionName) => {
-        let db = await connect();
+        
         let result, id 
 
         if (data._id == null){
@@ -97,6 +97,8 @@ let methods  = {
             delete data._id
         }
         
+        let db = await connect();
+
         //za ovakav update više odgovara put, a ne patch?
         if (data.updateDoc==='true') {
             delete data.updateDoc
@@ -173,6 +175,7 @@ let methods  = {
                 atributi.forEach(atribut => {
                     or.$or.push({ [atribut]: new RegExp(term, "i") });
                 })
+                
                 selekcija.$and.push(or);
             });
             

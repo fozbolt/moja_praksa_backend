@@ -5,6 +5,54 @@ import methods from './methods.js'
 
 
 export default {
+    //slicna kao neke funkcije, spojiti?
+    async getJournal (req,res) {
+        let studentID = req.body.id
+
+        let db = await connect()
+
+        try{
+            let student = await db.collection("users").findOne({_id: ObjectID(studentID)})
+            
+            let journal = await db.collection("journals").findOne({_id: ObjectID(student.journalID)})
+
+            res.json(journal)
+        }
+
+        catch(e){
+            if (studentID == null)  res.json({error: 'id is undefined'})
+
+            else  res.json({error: e.message})
+        }
+    },
+
+
+//     //identicna kao getOnePartner, spojiti?
+//     async getOneStudent (req,res) {
+//         //ne vraca gresku kad je id nepostojeci
+
+//         let id = req.params.id
+//         //let id = req.body.id
+
+//         let db = await connect()
+
+//         try{
+//             let result = await db.collection("users").findOne({_id: ObjectID(id)})
+
+//             result.id = result._id
+//             delete result._id, 
+//             delete result.password
+
+//             res.json(result)
+//         }
+
+//         catch(e){
+//             if (id == null)  res.json({error: 'id is undefined'})
+
+//             else  res.json({error: e.message})
+//         }
+        
+// },
 
     // id usera svugdje traziti preko req.jwt!!?
     async changeUserInfo (req, res)  {
@@ -41,12 +89,15 @@ export default {
 
     async uploadTemplate(req, res) {
         //poboljsati
-        let data = {}
-        data.template = req.body
+
         let db = await connect();
         let content = await db.collection('content').findOne();
-        data.id = content._id
-        data.updateDoc = 'true'
+
+        let data = {
+            template : req.body,
+            id : content._id,
+            updateDoc : 'true'
+        }
         
         try{
             
@@ -63,12 +114,15 @@ export default {
 
     async changeInstructions(req, res) {
         //poboljsati
-        let data = {}
-        data.instructions = req.body
         let db = await connect();
         let content = await db.collection('content').findOne();
-        data.id = content._id
-        data.updateDoc = 'true'
+
+        let data = {
+            instructions : req.body,
+            id : content._id,
+            updateDoc : 'true'
+        }
+        
         
         try{
             
@@ -104,10 +158,12 @@ export default {
 
     async applicationForm (req, res) {
 
-        let formData = {}
-        formData.application = req.body.form
-        formData.updateDoc = 'true'
-        formData.id = req.body.userID
+        let formData = {
+            id : req.body.userID,
+            application : req.body.form,
+            updateDoc : 'true'
+        }
+        
 
         let db = await connect()
 
@@ -129,7 +185,7 @@ export default {
 
 
     //refaktorirati
-    async submitDiary (req,res) {
+    async submitJournal (req,res) {
         let data = {
             userID : req.body.user_id,
             journal : req.body.journal,
@@ -140,9 +196,10 @@ export default {
         let journal
 
         try{
-            let checkUser = await db.collection('users').findOne({_id : ObjectID(data.userID)})
+            /* ako želimo da korisnik ne može više puta uploadati dnevnik */
+            //let checkUser = await db.collection('users').findOne({_id : ObjectID(data.userID)})
             
-            if (checkUser.journalID != false) throw new Error("Error accured during inserting")
+            //if (checkUser.journalID != false) throw new Error("Error accured during inserting")
 
             journal = await db.collection('journals').insertOne(data)
             
@@ -359,17 +416,34 @@ export default {
         res.send(response)
 },
 
+    async getStudents (req, res)  {
+            
+        let query = req.query
+        let atributi = ["name", "surname", "jmbag", "year", "technology", "email"] 
+
+        let result = await methods.search(query, atributi, 'users')
+        
+        for (let i = 0; i < result.length; i++) {
+            if(result[i].account_type != 'Student'){
+                result = result.pop(result[i])
+            }
+          }
+
+        //console.log(result)
+
+        res.json(result)
+    },
 
 
-async getProjects (req, res)  {
-    
-    let query = req.query
-    let atributi = ["company", "technologies", "location", "project_description"] 
+    async getProjects (req, res)  {
+        
+        let query = req.query
+        let atributi = ["company", "technologies", "location", "project_description"] 
 
-    let result = await methods.search(query, atributi, 'projects')
+        let result = await methods.search(query, atributi, 'projects')
 
-    res.json(result)
-},
+        res.json(result)
+    },
 
 
 

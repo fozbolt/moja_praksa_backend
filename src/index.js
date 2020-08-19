@@ -23,7 +23,7 @@ app.patch('/', routes.addView)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
 app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bolje change_password, ali onda je to nova ruta
-app.patch('/journal', routes.submitDiary)
+app.patch('/journal', routes.submitJournal)
 app.post('/application_form', routes.applicationForm)
 app.get('/instructions', routes.getInstructions)
 app.patch('/instructions', routes.changeInstructions)
@@ -31,6 +31,11 @@ app.patch('/template', routes.uploadTemplate)
 app.get('/template', routes.getTemplate)
 app.patch('/user', [auth.isValidUser], routes.changeUserInfo)
 app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
+
+//students
+//app.get('/students/:id', routes.getOneStudent)
+app.get('/students', routes.getStudents)
+app.get('/journal', routes.getJournal)
 
 //projects
 app.get('/projects', routes.getProjects)
