@@ -8,9 +8,9 @@ export default {
     //slicna kao neke funkcije, spojiti?
     async getJournal (req,res) {
         let studentID = req.body.id
-
+        console.log(req.body)
         let db = await connect()
-
+        console.log(asdas)
         try{
             let student = await db.collection("users").findOne({_id: ObjectID(studentID)})
             
