@@ -419,7 +419,7 @@ export default {
     async getStudents (req, res)  {
             
         let query = req.query
-        let atributi = ["name", "surname", "jmbag", "year", "technology", "email"] 
+        let atributi = ["name", "surname", "jmbag", "year", "technology", "email", "account_type"] 
 
         let result = await methods.search(query, atributi, 'users')
         

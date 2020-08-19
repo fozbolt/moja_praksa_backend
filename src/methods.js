@@ -149,9 +149,16 @@ let methods  = {
 
         let selekcija = {}
         
-        if(query._any){
+        if(query._any || collectionName === 'users'){
             let pretraga = query._any
+
+            if (collectionName === 'users'){
+
+                pretraga = pretraga + ' Student'
+            } 
+
             let terms = pretraga.split(' ')
+            if (!query._any)  terms.shift()
             console.log('terms:',terms)
 
             selekcija = {
@@ -181,8 +188,8 @@ let methods  = {
             
             
      }
-
-        let cursor = await db.collection(collectionName).find({ account_type: "Student"} ).sort({company: 1})
+     
+        let cursor = await db.collection(collectionName).find(selekcija).sort({company: 1})
 
         let results =  await cursor.toArray()
 
