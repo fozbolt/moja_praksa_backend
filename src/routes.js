@@ -423,13 +423,9 @@ export default {
 
         let result = await methods.search(query, atributi, 'users')
         
-        for (let i = 0; i < result.length; i++) {
-            if(result[i].account_type != 'Student'){
-                result = result.pop(result[i])
-            }
-          }
+        
 
-        //console.log(result)
+        console.log(result)
 
         res.json(result)
     },

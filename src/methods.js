@@ -182,7 +182,7 @@ let methods  = {
             
      }
 
-        let cursor = await db.collection(collectionName).find(selekcija).sort({company: 1})
+        let cursor = await db.collection(collectionName).find({ account_type: "Student"} ).sort({company: 1})
 
         let results =  await cursor.toArray()
 
