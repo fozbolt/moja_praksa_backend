@@ -26,11 +26,12 @@ app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bo
 app.patch('/journal', routes.submitJournal)
 app.post('/application_form', routes.applicationForm)
 app.get('/instructions', routes.getInstructions)
-app.patch('/instructions', routes.changeInstructions)
+app.patch('/instructions', routes.changeInstructions) //promijeniti u put
 app.patch('/template', routes.uploadTemplate)
 app.get('/template', routes.getTemplate)
-app.patch('/user', [auth.isValidUser], routes.changeUserInfo)
+app.patch('/user', [auth.isValidUser], routes.changeUserInfo) //put
 app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
+
 
 //students
 //app.get('/students/:id', routes.getOneStudent)
@@ -41,9 +42,9 @@ app.get('/journal/:id', routes.getJournal)
 app.get('/projects', routes.getProjects)
 app.post('/projects', routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
-app.patch('/projects/:id',  routes.changeProjectInfo)
+app.patch('/projects/:id',  routes.changeProjectInfo) //put
 app.delete('/projects/:id',  routes.changeProjectInfo) 
-app.post('/chosen_projects', routes.chosenProjects)
+app.patch('/chosen_projects', routes.submitChosenProjects) //ipak patch a ne post?
 app.get('/approved_project', routes.getApprovedProject)
 app.get('/check_if_partner', routes.checkIfPartner)
 
@@ -52,7 +53,7 @@ app.get('/check_if_partner', routes.checkIfPartner)
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
 app.patch('/partners/:id', routes.changePartnerInfo) //promijeniti u 'partner'? i maknuti drugi parametar?
-app.delete('/partners/:id', routes.changePartnerInfo)
+app.delete('/partners/:id', routes.changePartnerInfo)   //put
 app.get('/partner_projects/:id', routes.getPartnerProjects)
 app.post('/partners',  routes.createPartner) 
 

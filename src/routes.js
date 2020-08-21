@@ -5,12 +5,14 @@ import methods from './methods.js'
 
 
 export default {
+
+
     //slicna kao neke funkcije, spojiti?
     async getJournal (req,res) {
         let journalID = req.params.id
 
         let db = await connect()
-        console.log(asdas)
+       
         try{
             let journal = await db.collection("journals").findOne({_id: ObjectID(journalID)})
             res.json(journal)
@@ -208,8 +210,8 @@ export default {
 
                 await methods.changeInfo(user, 'users')
 
-                res.json({message: 'upload successful'})
-
+                res.json(true)
+                //res.json({message: 'upload successful'})
             }
 
             catch(e){
@@ -220,7 +222,8 @@ export default {
         }
         
         catch(e){
-            res.json({error:e.message })
+            res.json(false)
+            //res.json({error:e.message })
         }
 
 
@@ -368,11 +371,41 @@ export default {
 },
 
 
-    async chosenProjects (req, res)  {
+    async submitChosenProjects (req, res)  {
         let data = req.body
         let db = await connect()
 
-        let result = await db.collection('users').updateOne( { _id: ObjectID(data.user) },{ $set:{ "chosenProjects": data.selection} });
+        //ovo bi islo s .map?
+
+        // {first_priority: [id1, id2, id2], second_priority:[...], third_priority:[...]}
+        
+        let result
+
+        let selectedBy = {
+                first_priority : [],
+                second_priority : [],
+                third_priority  : []
+        }
+        //destrukcija strukture
+        let entries = Object.entries(selectedBy);
+
+        for(let [index, [key, value]] of entries.entries()){
+
+            let projectID = data.selection[index]
+       
+            /* https://stackoverflow.com/questions/30969382/mongodb-object-key-with-es6-template-string  da bi bilo moguce dinamicki updejtati*/
+            // var attributeName
+            // let query = { "_id": projectID }
+            // let update = { "$addToSet": {} }
+            // update["$addToSet"][attributeName] = data.user
+
+            //trik za prevariti mongo kompajler
+            key = 'selected_by.' + key
+
+            result = await db.collection('projects').updateOne( { _id: ObjectID(projectID) },{ $addToSet: { [key] : data.user }})
+     
+        }
+                                                                                       
         
         res.json(result)
 },
@@ -453,7 +486,7 @@ export default {
     async addProject (req, res)  {
 
         let projectData = req.body
-
+ 
         // pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba
         let project = await methods.mapAttributes(projectData)
         
