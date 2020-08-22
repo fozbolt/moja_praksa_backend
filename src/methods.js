@@ -84,8 +84,18 @@ let methods  = {
     },
 
 
-    // identičan postupak za promjenu info partnera i projekta
+    // identičan postupak za promjenu info partnera i projekta -- REFakTORIRATI staviti sve u try catch i u routes.js?
     changeInfo : async (data, collectionName) => {
+
+        if (!methods.validateData(data)) {
+            /* res nije tu definiran ali iskoristiti ovo drugdje
+            res.json({
+                status: 'fail',
+                reason : 'incomplete update data'
+            })
+            */
+            return 'fail'  
+        }
         
         let result, id 
 
@@ -99,27 +109,32 @@ let methods  = {
         
         let db = await connect();
 
-        //za ovakav update više odgovara put, a ne patch?
-        if (data.updateDoc==='true') {
-            delete data.updateDoc
-            result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: data, });
-        } 
-            
-        else    result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
+        try {
 
-        // 2 način
-        /*
-        else{
-            await db.collection('partners').updateOne( {}, {
-                $pull: { _id: ObjectID(id)  } } 
-              )
+            if (data.updateDoc==='true' && data.method == 'put') {
+                delete data.updateDoc
+                delete data.method
+                result = await db.collection(collectionName).replaceOne( { _id: ObjectID(id) }, data);
+            } 
 
-            result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } );
-        } 
-        */
+            else if (data.updateDoc==='true' && data.method == 'patch') {
+                delete data.updateDoc
+                delete data.method
+                result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: data, });
+            } 
+                
+            else    result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
+        }
+        
+
+        catch(e){
+            console.log(e)
+        }
      
+
         if (result.modifiedCount == 1 || result.deletedCount == 1)  return 'success'
         else return 'fail'
+        
     },
 
 
@@ -128,7 +143,7 @@ let methods  = {
      
         let project = {
                 company: projectData.company,
-                project_description: projectData.description,
+                project_description: projectData.project_description,
                 date_created: Date.now(),
                 contact: projectData.contact,
                 technologies: projectData.technologies,
@@ -197,6 +212,8 @@ let methods  = {
         results.forEach(doc => {
             doc.id = doc._id
             delete doc._id
+
+            if (collectionName == 'users') delete doc.password
         })
 
 

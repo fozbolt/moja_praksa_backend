@@ -6,6 +6,41 @@ import methods from './methods.js'
 
 export default {
 
+    async getChosenProjects (req,res) {
+        let studentID = req.body.id
+
+        let db = await connect()
+        let cursor = await db.collection('projects').find()
+        let projects = await cursor.toArray()
+
+        let result = [];
+        
+        let attributes = ['first_priority', 'second_priority', 'third_priority']
+
+
+        attributes.forEach(attribute => {
+            const match = projects.filter(function (project) {
+                let priority = undefined
+                
+                try {
+    
+                    priority = project.selected_by[attribute]    
+                    console.log(priority)
+                    if (priority.includes(studentID)){
+                        result.push(project._id);
+                        }
+    
+                }
+    
+                catch { }
+            })
+        })
+        console.log(result)
+
+        res.json(result)
+
+    },
+
 
     //slicna kao neke funkcije, spojiti?
     async getJournal (req,res) {
@@ -56,6 +91,9 @@ export default {
     async changeUserInfo (req, res)  {
 
         let userInfo = req.body
+        let obj = req.route.methods
+
+        userInfo.method = Object.keys(obj).toString()
 
         let response = await methods.changeInfo(userInfo, 'users')
 
@@ -96,6 +134,9 @@ export default {
             id : content._id,
             updateDoc : 'true'
         }
+
+        let obj = req.route.methods
+        data.method = Object.keys(obj).toString()
         
         try{
             
@@ -120,6 +161,9 @@ export default {
             id : content._id,
             updateDoc : 'true'
         }
+
+        let obj = req.route.methods
+        data.method = Object.keys(obj).toString()
         
         
         try{
@@ -161,6 +205,9 @@ export default {
             application : req.body.form,
             updateDoc : 'true'
         }
+
+        let obj = req.route.methods
+        formData.method = Object.keys(obj).toString()
         
 
         let db = await connect()
@@ -207,6 +254,9 @@ export default {
                     journalID : journal.insertedId,
                     updateDoc : 'true'
                 }
+
+                let obj = req.route.methods
+                user.method = Object.keys(obj).toString()
 
                 await methods.changeInfo(user, 'users')
 
@@ -282,6 +332,10 @@ export default {
         let collectionName = data.collectionName
         delete data.collectionName
         
+
+        let obj = req.route.methods
+        data.method = Object.keys(obj).toString()
+
         let result = await methods.changeInfo(data, collectionName)
 
         res.json(result)
@@ -400,6 +454,7 @@ export default {
             // update["$addToSet"][attributeName] = data.user
 
             //trik za prevariti mongo kompajler
+            // ili selectedBy[key] = 'selected_by. + key
             key = 'selected_by.' + key
 
             result = await db.collection('projects').updateOne( { _id: ObjectID(projectID) },{ $addToSet: { [key] : data.user }})
@@ -415,7 +470,7 @@ export default {
 
         let projectData = req.body 
         delete projectData.id;
-        let project 
+        let project
 
 
         //ako nema podataka u body, znači da se traži delete pa inicijaliziramo prazan objekt u koji stavljamo jedino podatke potrebne za delete, inače ide update
@@ -423,10 +478,16 @@ export default {
         else         project = {}
 
         // if (!project) project = {}       --varijanta bez mapiranja ako su nazivi atributa isti pa ne treba mapirati
-        
+    
 
         project.id = req.params.id;
         project.updateDoc = projectData.updateDoc
+
+        //console.log(req.route.methods["put"]) pa onda true/false
+        let obj = req.route.methods
+        project.method = Object.keys(obj).toString()
+
+        console.log(project)
         
         let response = await methods.changeInfo(project, 'projects')
         
@@ -440,6 +501,9 @@ export default {
         delete partnerInfo._id;
         partnerInfo.id = req.params.id;
 
+        let obj = req.route.methods
+        partnerInfo.method = Object.keys(obj).toString()
+
         let response = await methods.changeInfo(partnerInfo, 'partners')
 
         res.send(response)
@@ -452,9 +516,6 @@ export default {
 
         let result = await methods.search(query, atributi, 'users')
         
-        
-
-        console.log(result)
 
         res.json(result)
     },
