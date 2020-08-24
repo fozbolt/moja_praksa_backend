@@ -521,8 +521,6 @@ export default {
 
         let projectData = req.body
  
-        console.log(projectData)
-        console.log(dadsa)
         // pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba
         let project = await methods.mapAttributes(projectData)
         
@@ -530,11 +528,11 @@ export default {
         project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
         project.userID = projectData.userID
         project.views = 0
+        project.allocated_to = projectData.allocated_to
  
         //brisanje atributa koji su prazni kod inicijalizacije projekta da shodno tome ne aktivira validateData
-        delete project.allocated_to
-        delete project.selected_by
-        
+        if (!project.selected_by) delete project.selected_by
+
         try{
             let result = await methods.pushData(project, 'projects')
             
