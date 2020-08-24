@@ -7,8 +7,8 @@ import methods from './methods.js'
 export default {
 
     async getChosenProjects (req,res) {
-        let studentID = req.body.id
-
+        let studentID = req.params.id
+        console.log(req.params)
         let db = await connect()
         let cursor = await db.collection('projects').find()
         let projects = await cursor.toArray()
@@ -35,7 +35,6 @@ export default {
                 catch { }
             })
         })
-        console.log(result)
 
         res.json(result)
 

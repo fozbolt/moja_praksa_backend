@@ -47,7 +47,7 @@ app.delete('/projects/:id',  routes.changeProjectInfo)
 app.patch('/chosen_projects', routes.submitChosenProjects) 
 app.get('/approved_project', routes.getApprovedProject)
 app.get('/check_if_partner', routes.checkIfPartner)
-app.get('/chosen_projects', routes.getChosenProjects)
+app.get('/chosen_projects/:id', routes.getChosenProjects)
 
 
 
