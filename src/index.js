@@ -50,6 +50,7 @@ app.get('/check_if_partner', routes.checkIfPartner)
 app.get('/chosen_projects', routes.getChosenProjects)
 
 
+
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)

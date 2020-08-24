@@ -25,7 +25,7 @@ export default {
                 try {
     
                     priority = project.selected_by[attribute]    
-                    console.log(priority)
+
                     if (priority.includes(studentID)){
                         result.push(project._id);
                         }
@@ -60,32 +60,6 @@ export default {
     },
 
 
-//     //identicna kao getOnePartner, spojiti?
-//     async getOneStudent (req,res) {
-//         //ne vraca gresku kad je id nepostojeci
-
-//         let id = req.params.id
-//         //let id = req.body.id
-
-//         let db = await connect()
-
-//         try{
-//             let result = await db.collection("users").findOne({_id: ObjectID(id)})
-
-//             result.id = result._id
-//             delete result._id, 
-//             delete result.password
-
-//             res.json(result)
-//         }
-
-//         catch(e){
-//             if (id == null)  res.json({error: 'id is undefined'})
-
-//             else  res.json({error: e.message})
-//         }
-        
-// },
 
     // id usera svugdje traziti preko req.jwt!!?
     async changeUserInfo (req, res)  {
@@ -474,6 +448,7 @@ export default {
 
 
         //ako nema podataka u body, znači da se traži delete pa inicijaliziramo prazan objekt u koji stavljamo jedino podatke potrebne za delete, inače ide update
+            //mapiranje trenutno nije potrebno jer su nazivi atributa uskladeni, ali inace ce ova funkcja posluziti
         if (projectData) project = await methods.mapAttributes(projectData)
         else         project = {}
 
@@ -487,8 +462,7 @@ export default {
         let obj = req.route.methods
         project.method = Object.keys(obj).toString()
 
-        console.log(project)
-        
+
         let response = await methods.changeInfo(project, 'projects')
         
         res.send(response)

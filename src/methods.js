@@ -152,7 +152,8 @@ let methods  = {
                 duration: projectData.duration,
                 location: projectData.location,
                 note: projectData.note,
-                allocated_to: projectData.allocatedTo
+                allocated_to: projectData.allocated_to,
+                selected_by: projectData.selected_by
         }
         return project
     },
