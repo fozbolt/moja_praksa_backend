@@ -29,20 +29,19 @@ let methods  = {
             
         let db = await connect()
 
-        
         try{
-            
             
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
             if(collectionName === 'projects') {
+         
                 let getPartner  = await db.collection("partners").findOne({userID: ObjectID(data.userID)})
+  
                 data.partnerID = getPartner._id
             }
             
-            
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
-
+            
             if(insertResult && id){ 
                  // 1. način
                  return id
@@ -153,7 +152,8 @@ let methods  = {
                 location: projectData.location,
                 note: projectData.note,
                 allocated_to: projectData.allocated_to,
-                selected_by: projectData.selected_by
+                selected_by: projectData.selected_by,
+                img_url: projectData.img_url
         }
         return project
     },

@@ -8,7 +8,7 @@ export default {
 
     async getChosenProjects (req,res) {
         let studentID = req.params.id
-        console.log(req.params)
+
         let db = await connect()
         let cursor = await db.collection('projects').find()
         let projects = await cursor.toArray()
@@ -75,7 +75,7 @@ export default {
 
     //skoro identicna kao getonePartner skoro, spojiti u jednu
     async checkIfPartner(req, res) {
-            let id = req.body._id
+            let id = req.params.id
 
             let db = await connect()
             const data = await db.collection("partners").findOne({userID : ObjectID(id)});
@@ -445,7 +445,6 @@ export default {
         delete projectData.id;
         let project
 
-
         //ako nema podataka u body, znači da se traži delete pa inicijaliziramo prazan objekt u koji stavljamo jedino podatke potrebne za delete, inače ide update
             //mapiranje trenutno nije potrebno jer su nazivi atributa uskladeni, ali inace ce ova funkcja posluziti
         if (projectData) project = await methods.mapAttributes(projectData)
@@ -456,6 +455,7 @@ export default {
 
         project.id = req.params.id;
         project.updateDoc = projectData.updateDoc
+        project.partnerID = ObjectID(projectData.partnerID)
 
         //console.log(req.route.methods["put"]) pa onda true/false
         let obj = req.route.methods
@@ -521,6 +521,8 @@ export default {
 
         let projectData = req.body
  
+        console.log(projectData)
+        console.log(dadsa)
         // pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba
         let project = await methods.mapAttributes(projectData)
         
@@ -528,9 +530,12 @@ export default {
         project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
         project.userID = projectData.userID
         project.views = 0
+ 
+        //brisanje atributa koji su prazni kod inicijalizacije projekta da shodno tome ne aktivira validateData
+        delete project.allocated_to
+        delete project.selected_by
         
         try{
-            
             let result = await methods.pushData(project, 'projects')
             
             res.send(`project with id  ${result} added.`)

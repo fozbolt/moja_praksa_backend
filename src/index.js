@@ -33,6 +33,7 @@ app.patch('/user', [auth.isValidUser], routes.changeUserInfo)
 app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
 
 
+
 //students
 //app.get('/students/:id', routes.getOneStudent)
 app.get('/students', routes.getStudents)
@@ -40,13 +41,12 @@ app.get('/journal/:id', routes.getJournal)
 
 //projects
 app.get('/projects', routes.getProjects)
-app.post('/projects', routes.addProject)
+app.post('/projects', [auth.isValidUser], routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
 app.put('/projects/:id',  routes.changeProjectInfo) 
 app.delete('/projects/:id',  routes.changeProjectInfo) 
 app.patch('/chosen_projects', routes.submitChosenProjects) 
 app.get('/approved_project', routes.getApprovedProject)
-app.get('/check_if_partner', routes.checkIfPartner)
 app.get('/chosen_projects/:id', routes.getChosenProjects)
 
 
@@ -58,6 +58,7 @@ app.put('/partners/:id', routes.changePartnerInfo) //promijeniti u 'partner'? i 
 app.delete('/partners/:id', routes.changePartnerInfo)   
 app.get('/partner_projects/:id', routes.getPartnerProjects)
 app.post('/partners',  routes.createPartner) 
+app.get('/check_partner/:id', routes.checkIfPartner)
 
 
 // //projects
