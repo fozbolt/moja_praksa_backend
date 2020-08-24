@@ -443,24 +443,25 @@ export default {
 
         let projectData = req.body 
         delete projectData.id;
-        let project
+        let project = {}
 
-        //ako nema podataka u body, znači da se traži delete pa inicijaliziramo prazan objekt u koji stavljamo jedino podatke potrebne za delete, inače ide update
+        if (projectData && projectData.updateDoc === 'true'){
+
             //mapiranje trenutno nije potrebno jer su nazivi atributa uskladeni, ali inace ce ova funkcja posluziti
-        if (projectData) project = await methods.mapAttributes(projectData)
-        else         project = {}
+            if (projectData) project = await methods.mapAttributes(projectData)
+                if (!project.selected_by) delete project.selected_by
+                     
+            project.partnerID = ObjectID(projectData.partnerID)
+            project.updateDoc = projectData.updateDoc
 
-        // if (!project) project = {}       --varijanta bez mapiranja ako su nazivi atributa isti pa ne treba mapirati
-    
+            //console.log(req.route.methods["put"]) pa onda true/false -> 2. nacin za dohvati vrstu requesta
+            let obj = req.route.methods
+            project.method = Object.keys(obj).toString()
+        }
+        
 
         project.id = req.params.id;
-        project.updateDoc = projectData.updateDoc
-        project.partnerID = ObjectID(projectData.partnerID)
-
-        //console.log(req.route.methods["put"]) pa onda true/false
-        let obj = req.route.methods
-        project.method = Object.keys(obj).toString()
-
+        if (!project.updateDoc) project.updateDoc = 'false'
 
         let response = await methods.changeInfo(project, 'projects')
         
@@ -476,6 +477,8 @@ export default {
 
         let obj = req.route.methods
         partnerInfo.method = Object.keys(obj).toString()
+
+        if (!partnersInfo.updateDoc)  partnersInfo.updateDoc = 'false'
 
         let response = await methods.changeInfo(partnerInfo, 'partners')
 

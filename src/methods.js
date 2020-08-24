@@ -28,37 +28,26 @@ let methods  = {
         }
             
         let db = await connect()
-
+     
         try{
             
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
             if(collectionName === 'projects') {
-         
+       
                 let getPartner  = await db.collection("partners").findOne({userID: ObjectID(data.userID)})
-  
+    
                 data.partnerID = getPartner._id
             }
             
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
-            
+          
             if(insertResult && id){ 
                  // 1. način
                  return id
                 }
-                
-                /*
-                // pushanje projectId-a u listu projekata određenog partnera, 2. način
-
-                if(collectionName === 'projects'){
-                    let partnerID = data.partnerID
-                    delete data.partnerID
-                    
-                    await db.collection('partners').updateOne( { _id: ObjectID(partnerID) },{$addToSet:{ "projects": id}}, true);
-                }
-                */
-                return id
             }
+            
         
         catch(e){
                 throw new Error("Error accured during inserting project or partner")
@@ -154,6 +143,7 @@ let methods  = {
                 allocated_to: projectData.allocated_to,
                 selected_by: projectData.selected_by,
                 img_url: projectData.img_url
+                
         }
         return project
     },

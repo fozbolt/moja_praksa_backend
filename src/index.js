@@ -41,7 +41,7 @@ app.get('/journal/:id', routes.getJournal)
 
 //projects
 app.get('/projects', routes.getProjects)
-app.post('/projects', [auth.isValidUser], routes.addProject)
+app.post('/projects', [auth.isValidUser], [auth.isPartner], routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
 app.put('/projects/:id',  routes.changeProjectInfo) 
 app.delete('/projects/:id',  routes.changeProjectInfo) 
