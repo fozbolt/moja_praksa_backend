@@ -41,16 +41,15 @@ let methods  = {
             
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
-          
-            if(insertResult && id){ 
-                 // 1. način
-                 return id
-                }
-            }
-            
+
+            if(id) return id
+            else throw new Error("Error accured during inserting project or partner")
         
+        }
+        
+            
         catch(e){
-                throw new Error("Error accured during inserting project or partner")
+                console.error(e.name + ': ' + e.message)
         } 
     },
 

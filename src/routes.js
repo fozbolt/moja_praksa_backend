@@ -60,7 +60,6 @@ export default {
 
 
 
-    // id usera svugdje traziti preko req.jwt!!?
     async changeUserInfo (req, res)  {
 
         let userInfo = req.body
@@ -73,7 +72,7 @@ export default {
         res.send(response)
     },
 
-    //skoro identicna kao getonePartner skoro, spojiti u jednu
+    //skoro identicna kao getonePartner, spojiti u jednu?
     async checkIfPartner(req, res) {
             let id = req.params.id
 
@@ -86,11 +85,10 @@ export default {
         
     },
 
-    async getTemplate(req, res) {
+    async getJournalTemplate(req, res) {
         let db = await connect()
-
+    
         let result = await db.collection("content").findOne()
-
 
         res.json(result.template)
 
@@ -154,9 +152,10 @@ export default {
 
 
     async getInstructions(req, res) {
-        let id = req.params.id
 
         let db = await connect()
+
+        console.log(req)
 
         let result = await db.collection("content").findOne()
 
@@ -166,10 +165,6 @@ export default {
         res.json(result.instructions)
     },
 
-    async getApprovedProject(req, res) {
-        //testna za sad
-        res.json({message: 'here is your approved project'})
-    },
 
     async applicationForm (req, res) {
 
@@ -328,13 +323,13 @@ export default {
             result.id = result._id
             delete result._id
 
+            if (!result.id) throw new Error('id is undefined')
+
             res.json(result)
         }
 
         catch(e){
-            if (id == null)  res.json({error: 'id is undefined'})
-
-            else  res.json({error: e.message})
+            res.json({error: e.message})
         }
         
 },

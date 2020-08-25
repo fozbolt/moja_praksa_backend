@@ -105,18 +105,16 @@ export default {
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
-            
     
             if (type != 'Bearer'){
                 //console.log('type:' + type)
-               
+         
                 res.status(401).send()
                 return false;
             }
             else {
                 //spremati u jwt kljuc podatke u korisniku da se moze na bilo kojem mjestu
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
-  
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
                 
                 return next()
@@ -132,15 +130,16 @@ export default {
 
 
     async isStudent(req,res, next){
-        
         let accountType = req.jwt.account_type
 
         try{
             
             if (accountType ===  'Student' )  return next() 
             //fali jos return false u else ako nece funkcionirati
-            else  res.status(401).send()
-
+            else  {
+                res.status(401).send()
+                return false
+            }
         }
         catch(e){
             return res.status(401).send()

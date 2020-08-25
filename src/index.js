@@ -23,61 +23,41 @@ app.patch('/', routes.addView)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
 app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bolje change_password, ali onda je to nova ruta
-app.patch('/journal', routes.submitJournal) 
-app.post('/application_form', routes.applicationForm)  //prijavnica samo jednom, ili više pa da je patch?
+app.patch('/journal', [auth.isValidUser], [auth.isStudent], routes.submitJournal) 
+app.post('/application_form', [auth.isValidUser], [auth.isStudent], routes.applicationForm)  
 app.get('/instructions', routes.getInstructions) 
-app.patch('/instructions', routes.changeInstructions) 
-app.patch('/template', routes.uploadTemplate) 
-app.get('/template', routes.getTemplate)
+app.patch('/instructions', routes.changeInstructions) //[auth.isAdmin]
+app.patch('/template', routes.uploadTemplate) //[auth.isAdmin]
+app.get('/template', routes.getJournalTemplate)  //  [auth.isValidUser], [auth.isStudent],  vratiti kad se rijesi bug
 app.patch('/user', [auth.isValidUser], routes.changeUserInfo) 
 app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
 
 
-
 //students
 //app.get('/students/:id', routes.getOneStudent)
-app.get('/students', routes.getStudents)
-app.get('/journal/:id', routes.getJournal)
+app.get('/students', routes.getStudents) //[auth.isAdmin]
+app.get('/journal/:id', routes.getJournal) //[auth.isAdmin]
+
 
 //projects
 app.get('/projects', routes.getProjects)
 app.post('/projects', [auth.isValidUser], [auth.isPartner], routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
-app.put('/projects/:id',  routes.changeProjectInfo) 
-app.delete('/projects/:id',  routes.changeProjectInfo) 
-app.patch('/chosen_projects', routes.submitChosenProjects) 
-app.get('/approved_project', routes.getApprovedProject)
-app.get('/chosen_projects/:id', routes.getChosenProjects)
-
+app.put('/projects/:id', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
+app.delete('/projects/:id',  [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
+app.patch('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.submitChosenProjects) 
+app.get('/chosen_projects/:id',  routes.getChosenProjects) //tu fali ruta
 
 
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
-app.put('/partners/:id', routes.changePartnerInfo) //promijeniti u 'partner'? i maknuti drugi parametar?
-app.delete('/partners/:id', routes.changePartnerInfo)   
+app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) 
+app.delete('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo)   
 app.get('/partner_projects/:id', routes.getPartnerProjects)
-app.post('/partners',  routes.createPartner) 
-app.get('/check_partner/:id', routes.checkIfPartner)
+app.post('/partners', [auth.isValidUser], [auth.isPartner], routes.createPartner) //dovrsiti
+app.get('/check_partner/:id', [auth.isValidUser], [auth.isPartner], routes.checkIfPartner)
 
-
-// //projects
-// app.get('/projects', routes.getProjects)
-// app.post('/projects',[auth.isValidUser], [auth.isPartner], routes.addProject)
-// app.get('/projects/:id', routes.getOneProject)
-// app.patch('/projects/:id/:update', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo)
-// app.delete('/projects/:id/:update', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
-// app.post('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.chosenProjects)
-// app.get('/approved_project', routes.getApprovedProject)
-
-
-// //partners
-// app.get('/partners', routes.getPartners)
-// app.get('/partners/:id', routes.getOnePartner)
-// app.patch('/partners/:id/:update', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) //promijeniti u 'partner'?
-// app.delete('/partners/:id/:update', [auth.isValidUser], [auth.isPartner],  routes.changePartnerInfo)
-// app.get('/partner_projects/:id', routes.getPartnerProjects)
-// app.post('/partners', [auth.isValidUser], [auth.isPartner], routes.createPartner) 
 
 
 app.listen(port, () => console.log(`Slušam na portu ${port}!`))
