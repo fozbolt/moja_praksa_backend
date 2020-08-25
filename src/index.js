@@ -46,7 +46,7 @@ app.get('/projects/:id', routes.getOneProject)
 app.put('/projects/:id', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
 app.delete('/projects/:id',  [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
 app.patch('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.submitChosenProjects) 
-app.get('/chosen_projects/:id',  routes.getChosenProjects) //tu fali ruta
+app.get('/chosen_projects/:id',  routes.getChosenProjects) //tu fali middleweara, staviti naknadno kad stjepan promijeni front
 
 
 //partners
@@ -56,7 +56,7 @@ app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePart
 app.delete('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo)   
 app.get('/partner_projects/:id', routes.getPartnerProjects)
 app.post('/partners', [auth.isValidUser], [auth.isPartner], routes.createPartner) //dovrsiti
-app.get('/check_partner/:id', [auth.isValidUser], [auth.isPartner], routes.checkIfPartner)
+app.get('/check_partner/:id', routes.checkIfPartner) // [auth.isValidUser], [auth.isPartner] isto naknadno
 
 
 

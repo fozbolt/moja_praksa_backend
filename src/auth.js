@@ -105,7 +105,7 @@ export default {
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
-    
+            console.log(req)
             if (type != 'Bearer'){
                 //console.log('type:' + type)
          
@@ -149,9 +149,9 @@ export default {
 
 
     async isPartner(req,res, next){
-        
+        console.log('tu sam')
         let accountType = req.jwt.account_type
-
+        console.log(req)
         try{
             if (accountType ===  'Poslodavac'   ||   accountType === 'Admin')  {
                 //poslodavac nema pristup kreiranju i brisanju poslodavaca odnosno partnera 
