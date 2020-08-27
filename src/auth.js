@@ -105,7 +105,9 @@ export default {
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
-            console.log(req)
+            console.log('tu sam')
+            console.log(authorization)
+
             if (type != 'Bearer'){
                 //console.log('type:' + type)
          
@@ -115,6 +117,7 @@ export default {
             else {
                 //spremati u jwt kljuc podatke u korisniku da se moze na bilo kojem mjestu
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
+                console.log('tututu')
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
                 
                 return next()
@@ -149,8 +152,9 @@ export default {
 
 
     async isPartner(req,res, next){
-        console.log('tu sam')
+        
         let accountType = req.jwt.account_type
+        console.log('tu sam')
         console.log(req)
         try{
             if (accountType ===  'Poslodavac'   ||   accountType === 'Admin')  {

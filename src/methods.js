@@ -62,7 +62,8 @@ let methods  = {
             partnerData.views = 0
 
             let result = await methods.pushData(partnerData, 'partners')
-            console.log('res',result)
+            
+            
             return result
         }
         catch(e){
@@ -95,9 +96,8 @@ let methods  = {
         }
         
         let db = await connect();
-
+        console.log(data, 'data')
         try {
-
             if (data.updateDoc==='true' && data.method == 'put') {
                 delete data.updateDoc
                 delete data.method
@@ -111,6 +111,7 @@ let methods  = {
             } 
                 
             else    result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
+            
         }
         
 

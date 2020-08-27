@@ -53,7 +53,7 @@ app.get('/chosen_projects/:id',  routes.getChosenProjects) //tu fali middleweara
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
 app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) 
-app.delete('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo)   
+app.delete('/partners/:id', routes.changePartnerInfo)   // [auth.isValidUser], [auth.isPartner],
 app.get('/partner_projects/:id', routes.getPartnerProjects)
 app.post('/partners', [auth.isValidUser], [auth.isPartner], routes.createPartner) //dovrsiti
 app.get('/check_partner/:id', routes.checkIfPartner) // [auth.isValidUser], [auth.isPartner] isto naknadno

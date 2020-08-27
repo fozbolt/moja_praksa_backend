@@ -155,8 +155,6 @@ export default {
 
         let db = await connect()
 
-        console.log(req)
-
         let result = await db.collection("content").findOne()
 
         result.id = result._id
@@ -466,6 +464,7 @@ export default {
 
 
     async changePartnerInfo (req, res)  {
+    
         let partnerInfo = req.body
         delete partnerInfo._id;
         partnerInfo.id = req.params.id;
@@ -473,12 +472,30 @@ export default {
         let obj = req.route.methods
         partnerInfo.method = Object.keys(obj).toString()
 
-        if (!partnersInfo.updateDoc)  partnersInfo.updateDoc = 'false'
+        let partnerTemp, response, result
 
-        let response = await methods.changeInfo(partnerInfo, 'partners')
+        // dohvacanje partnera kako bi preko userID-a obrisali i usera
+        if (!partnerInfo.updateDoc) {
+            let db = await connect()
+            partnerTemp = await db.collection("partners").findOne({_id: ObjectID(partnerInfo.id)})
+            partnerTemp.updateDoc = 'false'
+        }
+       
+        
+        response = await methods.changeInfo(partnerInfo, 'partners')
+        
 
-        res.send(response)
+        if(response == 'success' && partnerTemp){
+            partnerTemp._id = partnerTemp.userID
+   
+            //brisanje usera
+            result = await methods.changeInfo(partnerTemp, 'users')
+        }
+
+
+        res.send(result)
 },
+
 
     async getStudents (req, res)  {
             
@@ -545,7 +562,7 @@ export default {
 
 
     async createPartner (req, res)  {
-        console.log('tu samm')
+       
         let partnerData = req.body
         
         // ako će trebati kad stjepan implementira
