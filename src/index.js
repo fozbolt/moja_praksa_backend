@@ -43,20 +43,20 @@ app.get('/journal/:id', routes.getJournal) //[auth.isAdmin]
 app.get('/projects', routes.getProjects)
 app.post('/projects', [auth.isValidUser], [auth.isPartner], routes.addProject)
 app.get('/projects/:id', routes.getOneProject)
-app.put('/projects/:id', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
-app.delete('/projects/:id',  [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) 
+app.put('/projects/:id', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) // uklopiti [auth.isAdmin]
+app.delete('/projects/:id',  [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo)  //[auth.isAdmin] samo ako ga je on kreirao
 app.patch('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.submitChosenProjects) 
-app.get('/chosen_projects/:id',  routes.getChosenProjects) //tu fali middleweara, staviti naknadno kad stjepan promijeni front
+app.get('/chosen_projects/:id', [auth.isValidUser], [auth.isStudent], routes.getChosenProjects) 
 
 
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
-app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) 
-app.delete('/partners/:id', routes.changePartnerInfo)   // [auth.isValidUser], [auth.isPartner],
+app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) // + [auth.isAdmin]
+app.delete('/partners/:id', routes.changePartnerInfo)   // [auth.isValidUser], [auth.isPartner], ne radi s middlewareom
 app.get('/partner_projects/:id', routes.getPartnerProjects)
-app.post('/partners', [auth.isValidUser], [auth.isPartner], routes.createPartner) //dovrsiti
-app.get('/check_partner/:id', routes.checkIfPartner) // [auth.isValidUser], [auth.isPartner] isto naknadno
+app.post('/partners',  routes.createPartner) //dovrsiti [auth.isValidUser], [auth.isAdmin],
+app.get('/check_partner/:id', [auth.isValidUser], [auth.isPartner], routes.checkIfPartner) //promijeniti naziv rute ovaj bas ne odgovara
 
 
 

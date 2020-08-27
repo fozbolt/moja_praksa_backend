@@ -105,9 +105,7 @@ export default {
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
-            console.log('tu sam')
-            console.log(authorization)
-
+         
             if (type != 'Bearer'){
                 //console.log('type:' + type)
          
@@ -117,7 +115,6 @@ export default {
             else {
                 //spremati u jwt kljuc podatke u korisniku da se moze na bilo kojem mjestu
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
-                console.log('tututu')
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
                 
                 return next()
@@ -136,9 +133,9 @@ export default {
         let accountType = req.jwt.account_type
 
         try{
-            
+        
             if (accountType ===  'Student' )  return next() 
-            //fali jos return false u else ako nece funkcionirati
+            //fali jos return false u else ako nece funkcionirati ?
             else  {
                 res.status(401).send()
                 return false
@@ -154,18 +151,28 @@ export default {
     async isPartner(req,res, next){
         
         let accountType = req.jwt.account_type
-        console.log('tu sam')
-        console.log(req)
+        
         try{
-            if (accountType ===  'Poslodavac'   ||   accountType === 'Admin')  {
-                //poslodavac nema pristup kreiranju i brisanju poslodavaca odnosno partnera 
-                if(accountType === 'Poslodavac' && req.path === 'partners' && (req.method === 'POST' || req.method === 'DELETE') ){
-                        res.status(401).send()
-                        return false
-                }
-
-                return next() 
+            if (accountType ===  'Poslodavac' )  return next() 
+            
+            else  {
+                res.status(401).send()}
+                return false
             }
+
+        
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+
+    async isAdmin(req,res, next){
+        
+        let accountType = req.jwt.account_type
+        
+        try{
+            if (accountType ===  'Admin' )  return next() 
+            
             else  {
                 res.status(401).send()}
                 return false

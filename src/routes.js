@@ -195,7 +195,7 @@ export default {
     },
 
 
-    //refaktorirati
+    //refaktorirati -> optimizirati
     async submitJournal (req,res) {
         let data = {
             userID : req.body.user_id,
@@ -216,7 +216,7 @@ export default {
             
             try {
                 let user = {
-                    id : data.userID,
+                    id : ObjectID(data.userID),
                     journalID : journal.insertedId,
                     updateDoc : 'true'
                 }
@@ -480,7 +480,10 @@ export default {
             partnerTemp = await db.collection("partners").findOne({_id: ObjectID(partnerInfo.id)})
             partnerTemp.updateDoc = 'false'
         }
-       
+
+        if (!partnerInfo.headers) delete partnerInfo.headers  
+        //hardcodamo opet defaultnu sliku ako partner nema nikakvog logotipa       
+        if (partnerInfo.image_url) partnerInfo.image_url = "https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
         
         response = await methods.changeInfo(partnerInfo, 'partners')
         
@@ -541,6 +544,7 @@ export default {
         
         //slika je hardcodana jer nema bas smisla imati custom sliku projekta
         project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+        //zasto ovdje userID?
         project.userID = projectData.userID
         project.views = 0
         project.allocated_to = projectData.allocated_to

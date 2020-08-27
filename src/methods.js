@@ -63,7 +63,7 @@ let methods  = {
 
             let result = await methods.pushData(partnerData, 'partners')
             
-            
+
             return result
         }
         catch(e){
@@ -96,7 +96,7 @@ let methods  = {
         }
         
         let db = await connect();
-        console.log(data, 'data')
+        console.log(id, 'data')
         try {
             if (data.updateDoc==='true' && data.method == 'put') {
                 delete data.updateDoc
