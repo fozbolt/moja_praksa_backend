@@ -56,7 +56,7 @@ app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePart
 app.delete('/partners/:id', routes.changePartnerInfo)   // [auth.isValidUser], [auth.isPartner], ne radi s middlewareom
 app.get('/partner_projects/:id', routes.getPartnerProjects)
 app.post('/partners',  routes.createPartner) //dovrsiti [auth.isValidUser], [auth.isAdmin],
-app.get('/check_partner/:id', [auth.isValidUser], [auth.isPartner], routes.checkIfPartner) //promijeniti naziv rute ovaj bas ne odgovara
+app.get('/check_partner/:id', routes.checkIfPartner) //promijeniti naziv rute ovaj bas ne odgovara
 
 
 

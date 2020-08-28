@@ -468,6 +468,7 @@ export default {
         let partnerInfo = req.body
         delete partnerInfo._id;
         partnerInfo.id = req.params.id;
+        partnerInfo.userID = ObjectID(partnerInfo.userID)
 
         let obj = req.route.methods
         partnerInfo.method = Object.keys(obj).toString()
