@@ -475,14 +475,22 @@ export default {
 
         let partnerTemp, response, result
 
-        // dohvacanje partnera kako bi preko userID-a obrisali i usera
-        if (!partnerInfo.updateDoc) {
-            let db = await connect()
+        let db = await connect()
+
+        // dohvacanje partnera kako bi preko userID-a obrisali i usera ako je API metoda delete
+        if (!partnerInfo.updateDoc) { // ili  req.route.methods == 'DELETE'
             partnerTemp = await db.collection("partners").findOne({_id: ObjectID(partnerInfo.id)})
             partnerTemp.updateDoc = 'false'
         }
 
         if (!partnerInfo.headers) delete partnerInfo.headers  
+        
+        else {
+             try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers}}) }
+             // je li ovo ok?
+             catch(e) {res.send('Error accured during updating project headers')}
+        }
+
         //hardcodamo opet defaultnu sliku ako partner nema nikakvog logotipa       
         if (partnerInfo.image_url) partnerInfo.image_url = "https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
         

@@ -96,7 +96,7 @@ let methods  = {
         }
         
         let db = await connect();
-        console.log(id, 'data')
+     
         try {
             if (data.updateDoc==='true' && data.method == 'put') {
                 delete data.updateDoc
