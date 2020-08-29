@@ -29,29 +29,31 @@ export default {
             date_created: Date.now()
         }
 
+        if(!userData.account_type){
 
-        if(userData.jmbag){
-            user.account_type = 'Student',
-            user.jmbag = userData.jmbag,
-            user.name = userData.name,
-            user.surname = userData.surname,
-            user.technology = userData.technology
-            user.year= userData.year
-            user.journalID = false
-        } else{
-            user.account_type = 'Poslodavac',
-            partner.company = userData.name
-            partner.technology= userData.technology,
-            partner.adress = userData.adress,
-            partner.about_us = userData.about_us,
-            partner.website = userData.website,
-            partner.date_created = Date.now()
-            partner.contact_email = userData.contact_email,
-            partner.contact_number = userData.telephone_number
-            partner.img_url = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80'
+            if(userData.jmbag){
+                user.account_type = 'Student',
+                user.jmbag = userData.jmbag,
+                user.name = userData.name,
+                user.surname = userData.surname,
+                user.technology = userData.technology
+                user.year= userData.year
+                user.journalID = false
+            } else{
+                user.account_type = 'Poslodavac',
+                partner.company = userData.name
+                partner.technology= userData.technology,
+                partner.adress = userData.adress,
+                partner.about_us = userData.about_us,
+                partner.website = userData.website,
+                partner.date_created = Date.now()
+                partner.contact_email = userData.contact_email,
+                partner.contact_number = userData.telephone_number
+                partner.img_url = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80'
+            }
         }
-        
 
+        
         try{
             let insertResult = await db.collection('users').insertOne(user);
       

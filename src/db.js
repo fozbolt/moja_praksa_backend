@@ -1,5 +1,9 @@
 //modul za pristup bazi
 import mongo from 'mongodb'
+import dotenv from 'dotenv'
+import auth from './auth.js'
+dotenv.config();
+
 
 let connection_string = 'mongodb+srv://admin:admin@fo-cluster.b1r2g.mongodb.net/moja_praksa?retryWrites=true&w=majority'
 
@@ -24,10 +28,23 @@ export default () => {
         } else {
             client.connect((err) => {
                 if (err) {
-                    reject('Spajanje na bazu nije uspjelo:' + err);
+                    reject('Error with connecting to database' + err);
                 } else {
-                    console.log('Database connected successfully!');
+                    
                     db = client.db('moja_praksa');
+            
+                    let admin = db.collection("users").findOne({account_type : 'Admin'})
+                        
+                    if(!admin){
+                        let adminData = {
+                            email: userData.email,
+                            password:  process.env.ADMIN_PASSWORD,
+                            date_created: Date.now()
+                        }
+
+                    }
+                    
+                    console.log('Database connected successfully!');
                     resolve(db);
                 }
             });
