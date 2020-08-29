@@ -323,6 +323,25 @@ export default {
 
             if (!result.id) throw new Error('id is undefined')
 
+            //get partner popularity
+            //https://stackoverflow.com/questions/34268176/count-total-number-of-elements-inside-an-array-in-document-mongodb
+            let cursor = await db.collection("projects").aggregate(
+                [
+                    {
+                      $match: { partnerID : ObjectID(id) }
+                    },
+                    {
+                      $group: {
+                        _id: null, // da ih ne grupira nego samo pokaze ukupan zbroj
+                        total: { $sum: { $size: "$selected_by.third_priority"} }
+                      }
+                    }
+                ] 
+            )
+            let popularity = await cursor.toArray()
+            result.popularity = popularity[0].total
+            console.log(result.popularity)
+
             res.json(result)
         }
 
@@ -377,10 +396,12 @@ export default {
         try {
             let partner = await auth.register(newUser);
             let result 
-
+            
             //dodavanje korisnika automatski u partnere čim se registrira
-            if (newUser.account_type === ('poslodavac' || 'Poslodavac'))    result = await methods.addPartner(partner)
-            console.log(result)
+            
+            if (newUser.account_type == 'Poslodavac')    result = await methods.addPartner(partner)
+            
+        
             res.json({status: `user with id ${result} added`})
 
         } catch (e) {
@@ -611,7 +632,6 @@ export default {
         numberOfDocs.projectsCounter = await db.collection("projects").countDocuments();
         numberOfDocs.partnersCounter = await db.collection("partners").countDocuments();
         numberOfDocs.studentsCounter = await db.collection("users").countDocuments({ account_type : 'Student'});
-
         
 
         res.json(numberOfDocs)

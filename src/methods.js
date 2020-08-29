@@ -23,11 +23,11 @@ let methods  = {
     pushData : async (data, collectionName) => {
 
         if (!methods.validateData(data)) {
-
             throw new Error("Error accured during inserting project or partner")        
         }
             
         let db = await connect()
+      
      
         try{
             
@@ -38,9 +38,11 @@ let methods  = {
     
                 data.partnerID = getPartner._id
             }
-            
+
+
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId
+
 
             if(id) return id
             else throw new Error("Error accured during inserting project or partner")
@@ -56,11 +58,10 @@ let methods  = {
 
    
     addPartner : async (partnerData) => {
-        
+       
         try{
-            delete partnerData.account_type
             partnerData.views = 0
-
+            
             let result = await methods.pushData(partnerData, 'partners')
             
 
