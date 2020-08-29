@@ -1,8 +1,8 @@
 //modul za pristup bazi
 import mongo from 'mongodb'
 
-let connection_string = 'mongodb+srv://admin:admin@fo-cluster.b1r2g.mongodb.net/moja_praksa?retryWrites=true&w=majority'
 
+let connection_string = 'mongodb+srv://admin:admin@fo-cluster.b1r2g.mongodb.net/moja_praksa?retryWrites=true&w=majority'
 
 //služi za pristup prema bazi na navedenom frameworku
 let client = new mongo.MongoClient(connection_string,{
@@ -24,10 +24,12 @@ export default () => {
         } else {
             client.connect((err) => {
                 if (err) {
-                    reject('Spajanje na bazu nije uspjelo:' + err);
+                    reject('Error with connecting to database' + err);
                 } else {
+                    
+                    db = client.db('moja_praksa');   
                     console.log('Database connected successfully!');
-                    db = client.db('moja_praksa');
+
                     resolve(db);
                 }
             });

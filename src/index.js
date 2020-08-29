@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 import express from 'express';
+import bodyParser from 'body-parser';
 import routes from './routes'; 
 import cors from 'cors'
 import auth from './auth.js'
@@ -11,18 +12,52 @@ const app = express() // instanciranje aplikacije
 const port = 3000 // port na kojem će web server slušati
 
 app.use(cors())
-app.use(express.json())
+
+app.use(bodyParser.json({limit: '50mb', extended: true}))
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
+
+
 
 app.get('/', routes.home)
-app.get('/secret', [auth.verify], routes.secret)
-app.get('/profile', routes.userProfile)
+app.patch('/', routes.addView)
 app.post('/register', routes.registration)
 app.post('/login', routes.login)
+app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bolje change_password, ali onda je to nova ruta
+app.patch('/journal', [auth.isValidUser], [auth.isStudent], routes.submitJournal) 
+app.post('/application_form', [auth.isValidUser], [auth.isStudent], routes.applicationForm)  
+app.get('/instructions', routes.getInstructions) 
+app.patch('/instructions', routes.changeInstructions) //[auth.isAdmin]
+app.patch('/template', routes.uploadTemplate) //[auth.isAdmin]
+app.get('/template', routes.getJournalTemplate)  //  [auth.isValidUser], [auth.isStudent],  vratiti kad se rijesi bug
+app.patch('/user', [auth.isValidUser], routes.changeUserInfo) 
+app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
+
+
+//students
+//app.get('/students/:id', routes.getOneStudent)
+app.get('/students', routes.getStudents) //[auth.isAdmin]
+app.get('/journal/:id', routes.getJournal) //[auth.isAdmin]
+
+
+//projects
 app.get('/projects', routes.getProjects)
-app.post('/projects', routes.addProject)
-app.post('/partners', routes.addPartner)
+app.post('/projects', [auth.isValidUser], [auth.isPartner], routes.addProject)
+app.get('/projects/:id', routes.getOneProject)
+app.put('/projects/:id', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) // uklopiti [auth.isAdmin]
+app.delete('/projects/:id',  [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo)  //[auth.isAdmin] samo ako ga je on kreirao
+app.patch('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.submitChosenProjects) 
+app.get('/chosen_projects/:id', [auth.isValidUser], [auth.isStudent], routes.getChosenProjects) 
+
+
+//partners
 app.get('/partners', routes.getPartners)
-app.patch('/register', [auth.verify], routes.changePassword)
+app.get('/partners/:id', routes.getOnePartner)
+app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) // + [auth.isAdmin]
+app.delete('/partners/:id', routes.changePartnerInfo)   // [auth.isValidUser], [auth.isPartner], ne radi s middlewareom
+app.get('/partner_projects/:id', routes.getPartnerProjects)
+app.post('/partners',  routes.createPartner) //dovrsiti [auth.isValidUser], [auth.isAdmin],
+app.get('/check_partner/:id', [auth.isValidUser], [auth.isPartner], routes.checkIfPartner) //promijeniti naziv rute ovaj bas ne odgovara
+
 
 
 app.listen(port, () => console.log(`Slušam na portu ${port}!`))

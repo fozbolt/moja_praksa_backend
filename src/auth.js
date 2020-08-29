@@ -1,38 +1,99 @@
 import connect from './db'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { ObjectID } from 'mongodb'
+import dotenv from 'dotenv'
+dotenv.config();
 
 (async () => {
     let db = await connect();
+    let admin = await db.collection("users").findOne({account_type : 'Admin'})
+
     db.collection('users').createIndex({ email: 1 }, { unique: true });
+
+    if(!admin){
+
+        let adminData = {
+            email: 'admin@admin',
+            password:  process.env.ADMIN_PASSWORD,
+            date_created: Date.now(),
+            account_type: 'Admin'
+        }
+        register(adminData)
+        console.log("Admin created")
+    }
 })();
 
 
-export default {
-    async register(userData){
-        let db = await connect()
-        
-        let user = {
-            email: userData.email,
-            password: await bcrypt.hash(userData.password, 8),
-            name: userData.name,
-            surname: userData.surname,
-            accountType: userData.account_type
-            
-        }
+async function register(userData){
 
-        try{
-            let insertResult = await db.collection('users').insertOne(user);
-            if(insertResult && insertResult.insertedId){
-                return insertResult.insertedId
-            }
+    for (const [key, value] of Object.entries(userData)) {
+        if(!value){
+          res.json({status: 'Missing data'})
+          return
         }
-        catch(e){
-            if (e.name =="MongoError" && e.code == 11000){
-                throw new Error("User already exists")
-            }
-        }   
-    },
+    }
+
+    let db = await connect()
+
+    let partner = {}
+    
+    let user = {
+        email: userData.email,
+        password: await bcrypt.hash(userData.password, 8),
+        date_created: Date.now(),
+    }
+
+    if(userData.account_type == 'Admin') user.accountType = userData.account_type
+
+    if(!user.account_type){
+
+        if(userData.jmbag){
+            user.account_type = 'Student',
+            user.jmbag = userData.jmbag,
+            user.name = userData.name,
+            user.surname = userData.surname,
+            user.technology = userData.technology
+            user.year= userData.year
+            user.journalID = false
+        } else{
+            user.account_type = 'Poslodavac',
+            partner.company = userData.name,
+            partner.technology= userData.technology,
+            partner.adress = userData.adress,
+            partner.about_us = userData.about_us,
+            partner.website = userData.website,
+            partner.date_created = Date.now(),
+            partner.contact_email = userData.contact_email,
+            partner.contact_number = userData.telephone_number,
+            partner.img_url = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80',
+            partner.account_type = 'Poslodavac'
+        }
+    }
+
+
+    
+    try{
+        let insertResult = await db.collection('users').insertOne(user);
+  
+        if(insertResult && insertResult.insertedId){
+            delete user.password
+            partner.userID = ObjectID(insertResult.insertedId)
+            return partner 
+        }
+    }
+    catch(e){
+        if (e.name =="MongoError" && e.code == 11000){
+            throw new Error("User already exists")
+        }
+    }   
+
+
+}
+
+export default {
+    
+    register,
 
 
     async authenticateUser(email,password){
@@ -50,11 +111,10 @@ export default {
                 algorithm: "HS512",
                 expiresIn: "1 week"
             })
+            
+            user.token = token
 
-            return{
-                token,
-                email : user.email
-            }
+            return user 
 
         }
         else {
@@ -62,15 +122,17 @@ export default {
         }
     },
 
-    //ako nam verify prode zovemo next, ako ne prode javljamo gresku
-    async verify(req,res, next){
+
+    async isValidUser(req,res, next){
+        
         try{
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
-    
+         
             if (type != 'Bearer'){
-                console.log('type:' + type)
+                //console.log('type:' + type)
+         
                 res.status(401).send()
                 return false;
             }
@@ -78,7 +140,29 @@ export default {
                 //spremati u jwt kljuc podatke u korisniku da se moze na bilo kojem mjestu
                 //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
+                
                 return next()
+            }
+        }
+        catch(e){
+
+            return res.status(401).send()
+        }
+    },
+
+
+
+
+    async isStudent(req,res, next){
+        let accountType = req.jwt.account_type
+
+        try{
+        
+            if (accountType ===  'Student' )  return next() 
+            //fali jos return false u else ako nece funkcionirati ?
+            else  {
+                res.status(401).send()
+                return false
             }
         }
         catch(e){
@@ -86,13 +170,54 @@ export default {
         }
     },
 
-    async changeUserPassword(email, oldPassword, newPassword){
+
+
+    async isPartner(req,res, next){
+        
+        let accountType = req.jwt.account_type
+        
+        try{
+            if (accountType ===  'Poslodavac' )  return next() 
+            
+            else  {
+                res.status(401).send()}
+                return false
+            }
+
+        
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+
+    async isAdmin(req,res, next){
+        
+        let accountType = req.jwt.account_type
+        
+        try{
+            if (accountType ===  'Admin' )  return next() 
+            
+            else  {
+                res.status(401).send()}
+                return false
+            }
+
+        
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+    
+
+
+    async changeUserPassword(userData){
         let db = await connect()
+ 
+        let user = await db.collection("users").findOne({email : userData.email})
+        
 
-        let user = await db.collection("users").findOne({email : email})
-
-        if (user && user.password && (await bcrypt.compare(oldPassword, user.password))){
-            let newPasswordTransformed = await bcrypt.hash(newPassword, 8)
+        if (user && user.password && (await bcrypt.compare(userData.oldPassword, user.password))){
+            let newPasswordTransformed = await bcrypt.hash(userData.newPassword, 8)
 
             let result = await db.collection('users').updateOne(
                 { _id: user._id },
