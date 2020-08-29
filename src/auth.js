@@ -62,7 +62,6 @@ async function register(userData){
             partner.technology= userData.technology,
             partner.adress = userData.adress,
             partner.about_us = userData.about_us,
-            partner.website = userData.website,
             partner.date_created = Date.now(),
             partner.contact_email = userData.contact_email,
             partner.contact_number = userData.telephone_number,

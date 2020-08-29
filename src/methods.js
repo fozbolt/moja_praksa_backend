@@ -32,7 +32,7 @@ let methods  = {
         try{
             
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
-            if(collectionName === 'projects') {
+            if(collectionName === 'projects' && !data.created_by_admin) {
        
                 let getPartner  = await db.collection("partners").findOne({userID: ObjectID(data.userID)})
     
@@ -68,7 +68,7 @@ let methods  = {
             return result
         }
         catch(e){
-            res.status(500).json({ error: e.message});
+            console.log(error)
         }   
     },
 
