@@ -11,6 +11,7 @@ import { ObjectID } from 'mongodb'
 
 export default {
     async register(userData){
+        console.log('tu sam')
 
         for (const [key, value] of Object.entries(userData)) {
             if(!value){
