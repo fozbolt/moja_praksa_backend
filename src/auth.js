@@ -158,8 +158,8 @@ export default {
         try{
         
             if (accountType ===  'Student' )  return next() 
-            else if (accountType ===  'Admin' && req.route.path =='/chosen_projects' && req.route.method.get == true)  return next() 
-            //fali jos return false u else ako nece funkcionirati ?
+            //za rute na kojima je isStudent middleware prisutan, autoriziran je samo student, ali iznimka je ruta chosen_projects za putanju /ChosenProjects kojoj ima pristup i admin
+            else if (accountType ===  'Admin' && req.route.path =='/chosen_projects' && req.route.methods.get == true)  return next() 
             else  {
                 res.status(401).send()
                 return false
@@ -191,11 +191,12 @@ export default {
 
 
     async isAdmin(req,res, next){
-        
         let accountType = req.jwt.account_type
         
         try{
             if (accountType ===  'Admin' )  return next() 
+            //za rute na kojima je isAdmin middleware prisutan, autoriziran je samo admin, ali iznimka je ruta getStudents za putanju /TableOfStudents kojoj ima pristup i student
+            else if(accountType ===  'Student'  && req.route.path =='/students' && req.route.methods.get == true ) return next() 
             
             else  {
                 res.status(401).send()}

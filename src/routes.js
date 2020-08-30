@@ -164,6 +164,23 @@ export default {
         res.json(result.instructions)
     },
 
+    
+
+    async getApprovedProject(req, res) {
+        let studentID = req.id 
+        console.log(studentID)
+
+        let db = await connect()
+
+        let result = await db.collection("projects").findOne()
+
+        result.id = result._id
+        delete result._id
+
+        res.json(result.instructions)
+    },
+    
+
 
     async applicationForm (req, res) {
 
@@ -341,7 +358,7 @@ export default {
             )
             let popularity = await cursor.toArray()
             result.popularity = popularity[0].total
-            console.log(result.popularity)
+            //console.log(result.popularity)
 
             res.json(result)
         }
