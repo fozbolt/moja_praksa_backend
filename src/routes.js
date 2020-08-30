@@ -334,7 +334,7 @@ export default {
                     {
                       $group: {
                         _id: null, // da ih ne grupira nego samo pokaze ukupan zbroj
-                        total: { $sum: { $size: "$selected_by.third_priority"} }
+                        total: { $sum: { $size: "$allocated_to"} }
                       }
                     }
                 ] 
