@@ -89,8 +89,9 @@ export default {
         let db = await connect()
     
         let result = await db.collection("content").findOne()
-
-        res.json(result.template)
+        
+        if(result)  res.json(result.template)
+        else return false
 
     },
 
@@ -103,7 +104,7 @@ export default {
         let data = {
             template : req.body,
             id : content._id,
-            updateDoc : 'true'
+            updateDoc : true
         }
 
         let obj = req.route.methods
@@ -130,7 +131,7 @@ export default {
         let data = {
             instructions : req.body,
             id : content._id,
-            updateDoc : 'true'
+            updateDoc : true
         }
 
         let obj = req.route.methods
@@ -155,13 +156,39 @@ export default {
 
         let db = await connect()
 
-        let result = await db.collection("content").findOne()
+        try{
+            let result = await db.collection("content").findOne()
+
+            result.id = result._id
+            delete result._id
+
+            res.json(result.instructions)
+        }
+        catch(e){
+            if (e.name == 'TypeError') {
+                console.log('There are no instructions at the moment')
+                res.send('There are no instructions at the moment')}
+
+            else console.log(e.name)
+        }
+       
+    },
+
+    
+
+    async getApprovedProject(req, res) {
+        let studentID = req.params.id
+
+        let db = await connect()
+
+        let result = await db.collection("projects").findOne({ allocated_to: studentID })
 
         result.id = result._id
         delete result._id
 
-        res.json(result.instructions)
+        res.json(result)
     },
+    
 
 
     async applicationForm (req, res) {
@@ -169,7 +196,7 @@ export default {
         let formData = {
             id : req.body.userID,
             application : req.body.form,
-            updateDoc : 'true'
+            updateDoc : true
         }
 
         let obj = req.route.methods
@@ -218,7 +245,7 @@ export default {
                 let user = {
                     id : ObjectID(data.userID),
                     journalID : journal.insertedId,
-                    updateDoc : 'true'
+                    updateDoc : true
                 }
 
                 let obj = req.route.methods
@@ -294,7 +321,7 @@ export default {
 
     async addView(req, res){
         let data = req.body
-        data.updateDoc = 'true'
+        data.updateDoc = true
         let collectionName = data.collectionName
         delete data.collectionName
         
@@ -333,14 +360,14 @@ export default {
                     {
                       $group: {
                         _id: null, // da ih ne grupira nego samo pokaze ukupan zbroj
-                        total: { $sum: { $size: "$selected_by.third_priority"} }
+                        total: { $sum: { $size: "$allocated_to"} }
                       }
                     }
                 ] 
             )
             let popularity = await cursor.toArray()
             result.popularity = popularity[0].total
-            console.log(result.popularity)
+            //console.log(result.popularity)
 
             res.json(result)
         }
@@ -455,18 +482,19 @@ export default {
 
     async changeProjectInfo (req, res)  {
 
-        let projectData = req.body 
-        delete projectData.id;
-        let project = {}
-
-        if (projectData && projectData.updateDoc === 'true'){
+        //let projectData = req.body 
+        //delete projectData.id;
+        let  project =  req.body 
+        delete project.id;
+        if (project && project.updateDoc === true){
 
             //mapiranje trenutno nije potrebno jer su nazivi atributa uskladeni, ali inace ce ova funkcja posluziti
-            if (projectData) project = await methods.mapAttributes(projectData)
-                if (!project.selected_by) delete project.selected_by
-                     
-            project.partnerID = ObjectID(projectData.partnerID)
-            project.updateDoc = projectData.updateDoc
+            //if (projectData) project = await methods.mapAttributes(projectData)
+            if (!project.selected_by) delete project.selected_by
+            
+            project.partnerID = ObjectID(project.partnerID)
+            //project.partnerID = ObjectID(projectData.partnerID)
+            //project.updateDoc = projectData.updateDoc
 
             //console.log(req.route.methods["put"]) pa onda true/false -> 2. nacin za dohvati vrstu requesta
             let obj = req.route.methods
@@ -475,7 +503,7 @@ export default {
         
 
         project.id = req.params.id;
-        if (!project.updateDoc) project.updateDoc = 'false'
+        if (!project.updateDoc) project.updateDoc = false
 
         let response = await methods.changeInfo(project, 'projects')
         
@@ -501,13 +529,13 @@ export default {
         // dohvacanje partnera kako bi preko userID-a obrisali i usera ako je API metoda delete
         if (!partnerInfo.updateDoc) { // ili  req.route.methods == 'DELETE'
             partnerTemp = await db.collection("partners").findOne({_id: ObjectID(partnerInfo.id)})
-            partnerTemp.updateDoc = 'false'
+            partnerTemp.updateDoc = false
         }
 
         if (!partnerInfo.headers) delete partnerInfo.headers  
         
         else {
-             try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers}}) }
+             try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers, logo: partnerInfo.logo} }) }
              // je li ovo ok?
              catch(e) {res.send('Error accured during updating project headers')}
         }
@@ -567,21 +595,24 @@ export default {
 
     async addProject (req, res)  {
 
+        let project = req.body
+        
+        /* pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba 
         let projectData = req.body
- 
-        // pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba
         let project = await methods.mapAttributes(projectData)
         
-        //slika je hardcodana jer nema bas smisla imati custom sliku projekta
-        project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
-        //zasto ovdje userID?
         project.userID = projectData.userID
-        project.views = 0
         project.allocated_to = projectData.allocated_to
- 
+        */
+       
+        project.views = 0
+        project.date_created = Date.now()
+        project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+
         //brisanje atributa koji su prazni kod inicijalizacije projekta da shodno tome ne aktivira validateData
         if (!project.selected_by) delete project.selected_by
-
+        
+        
         try{
             let result = await methods.pushData(project, 'projects')
             

@@ -62,7 +62,6 @@ async function register(userData){
             partner.technology= userData.technology,
             partner.adress = userData.adress,
             partner.about_us = userData.about_us,
-            partner.website = userData.website,
             partner.date_created = Date.now(),
             partner.contact_email = userData.contact_email,
             partner.contact_number = userData.telephone_number,
@@ -155,11 +154,12 @@ export default {
 
     async isStudent(req,res, next){
         let accountType = req.jwt.account_type
-
+        
         try{
         
             if (accountType ===  'Student' )  return next() 
-            //fali jos return false u else ako nece funkcionirati ?
+            //za rute na kojima je isStudent middleware prisutan, autoriziran je samo student, ali iznimka su donje rute za putanju ... kojoj ima pristup i admin
+            else if (accountType ===  'Admin' && (req.route.path =='/chosen_projects' || req.route.path =='/template') && req.route.methods.get == true)  return next() 
             else  {
                 res.status(401).send()
                 return false
@@ -175,9 +175,28 @@ export default {
     async isPartner(req,res, next){
         
         let accountType = req.jwt.account_type
-        
+
         try{
             if (accountType ===  'Poslodavac' )  return next() 
+            
+            else  {
+                res.status(401).send()}
+                return false
+            }
+
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+
+
+    async isAdmin(req,res, next){
+        let accountType = req.jwt.account_type
+        
+        try{
+            if (accountType ===  'Admin' )  return next() 
+            //za rute na kojima je isAdmin middleware prisutan, autoriziran je samo admin, ali iznimka je ruta getStudents za putanju /TableOfStudents kojoj ima pristup i student
+            else if(accountType ===  'Student'  && req.route.path =='/students' && req.route.methods.get == true ) return next() 
             
             else  {
                 res.status(401).send()}
@@ -190,12 +209,13 @@ export default {
         }
     },
 
-    async isAdmin(req,res, next){
+    
+    async isPartnerOrAdmin(req,res, next){
         
         let accountType = req.jwt.account_type
         
         try{
-            if (accountType ===  'Admin' )  return next() 
+            if (accountType ===  'Admin' || accountType === 'Poslodavac')  return next() 
             
             else  {
                 res.status(401).send()}
