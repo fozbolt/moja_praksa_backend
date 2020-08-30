@@ -158,6 +158,7 @@ export default {
         try{
         
             if (accountType ===  'Student' )  return next() 
+            else if (accountType ===  'Admin' && req.route.path =='/chosen_projects' && req.route.method.get == true)  return next() 
             //fali jos return false u else ako nece funkcionirati ?
             else  {
                 res.status(401).send()

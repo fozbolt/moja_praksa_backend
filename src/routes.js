@@ -89,8 +89,9 @@ export default {
         let db = await connect()
     
         let result = await db.collection("content").findOne()
-
-        res.json(result.template)
+        
+        if(result)  res.json(result.template)
+        else return false
 
     },
 
