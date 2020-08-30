@@ -26,8 +26,8 @@ app.patch('/register', [auth.isValidUser], routes.changePassword) //register? bo
 app.patch('/journal', [auth.isValidUser], [auth.isStudent], routes.submitJournal) 
 app.post('/application_form', [auth.isValidUser], [auth.isStudent], routes.applicationForm)  
 app.get('/instructions', routes.getInstructions) 
-app.patch('/instructions', routes.changeInstructions) //[auth.isAdmin]
-app.patch('/template', routes.uploadTemplate) //[auth.isAdmin]
+app.patch('/instructions', [auth.isAdmin], routes.changeInstructions) 
+app.patch('/template', [auth.isAdmin], routes.uploadTemplate) 
 app.get('/template', routes.getJournalTemplate)  //  [auth.isValidUser], [auth.isStudent],  vratiti kad se rijesi bug
 app.patch('/user', [auth.isValidUser], routes.changeUserInfo) 
 app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
@@ -35,16 +35,16 @@ app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
 
 //students
 //app.get('/students/:id', routes.getOneStudent)
-app.get('/students', routes.getStudents) //[auth.isAdmin]
-app.get('/journal/:id', routes.getJournal) //[auth.isAdmin]
+app.get('/students', [auth.isAdmin], routes.getStudents) 
+app.get('/journal/:id', [auth.isAdmin], routes.getJournal) 
 
 
 //projects
 app.get('/projects', routes.getProjects)
-app.post('/projects', [auth.isValidUser], [auth.isPartner], routes.addProject)
+app.post('/projects', [auth.isValidUser], [auth.isPartnerOrAdmin], routes.addProject) //radi
 app.get('/projects/:id', routes.getOneProject)
-app.put('/projects/:id', [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo) // uklopiti [auth.isAdmin]
-app.delete('/projects/:id',  [auth.isValidUser], [auth.isPartner], routes.changeProjectInfo)  //[auth.isAdmin] samo ako ga je on kreirao
+app.put('/projects/:id', [auth.isValidUser], [auth.isPartnerOrAdmin], routes.changeProjectInfo)  //provjeriti kad stjepan sredi
+app.delete('/projects/:id',  [auth.isValidUser], [auth.isPartnerOrAdmin], routes.changeProjectInfo)  //provjeriti kad stjepan sredi
 app.patch('/chosen_projects', [auth.isValidUser], [auth.isStudent], routes.submitChosenProjects) 
 app.get('/chosen_projects/:id', [auth.isValidUser], [auth.isStudent], routes.getChosenProjects) 
 
@@ -52,10 +52,10 @@ app.get('/chosen_projects/:id', [auth.isValidUser], [auth.isStudent], routes.get
 //partners
 app.get('/partners', routes.getPartners)
 app.get('/partners/:id', routes.getOnePartner)
-app.put('/partners/:id', [auth.isValidUser], [auth.isPartner], routes.changePartnerInfo) // + [auth.isAdmin]
-app.delete('/partners/:id', routes.changePartnerInfo)   // [auth.isValidUser], [auth.isPartner], ne radi s middlewareom
+app.put('/partners/:id', [auth.isValidUser], [auth.isPartnerOrAdmin], routes.changePartnerInfo) //radi, ali nekako kad se osvijezi ne dolazi, vj problem na frontu
+app.delete('/partners/:id',  [auth.isValidUser], [auth.isPartnerOrAdmin], routes.changePartnerInfo)  //provjeriti
 app.get('/partner_projects/:id', routes.getPartnerProjects)
-app.post('/partners',  routes.createPartner) //dovrsiti [auth.isValidUser], [auth.isAdmin],
+app.post('/partners', [auth.isValidUser], [auth.isAdmin], routes.createPartner)  //radi
 app.get('/check_partner/:id', [auth.isValidUser], [auth.isPartner], routes.checkIfPartner) //promijeniti naziv rute ovaj bas ne odgovara
 
 

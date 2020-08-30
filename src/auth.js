@@ -174,9 +174,27 @@ export default {
     async isPartner(req,res, next){
         
         let accountType = req.jwt.account_type
-        
+
         try{
             if (accountType ===  'Poslodavac' )  return next() 
+            
+            else  {
+                res.status(401).send()}
+                return false
+            }
+
+        catch(e){
+            return res.status(401).send()
+        }
+    },
+
+
+    async isAdmin(req,res, next){
+        
+        let accountType = req.jwt.account_type
+        
+        try{
+            if (accountType ===  'Admin' )  return next() 
             
             else  {
                 res.status(401).send()}
@@ -189,12 +207,13 @@ export default {
         }
     },
 
-    async isAdmin(req,res, next){
+    
+    async isPartnerOrAdmin(req,res, next){
         
         let accountType = req.jwt.account_type
         
         try{
-            if (accountType ===  'Admin' )  return next() 
+            if (accountType ===  'Admin' || accountType === 'Poslodavac')  return next() 
             
             else  {
                 res.status(401).send()}

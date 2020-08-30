@@ -28,17 +28,19 @@ let methods  = {
             
         let db = await connect()
       
-     
         try{
             
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
-            if(collectionName === 'projects' && !data.created_by_admin) {
-       
+            if(collectionName === 'projects' && data.created_by_admin!= true) {
+                
                 let getPartner  = await db.collection("partners").findOne({userID: ObjectID(data.userID)})
-    
-                data.partnerID = getPartner._id
+                data.partnerID = ObjectID(getPartner._id)
             }
-
+            else if (collectionName === 'projects' && data.created_by_admin === true){
+                //Moze biti vise partnera kreirano od strane admina pa ne mozemo to traziti klasicno kao u gornjem if-u
+                data.partnerID = ObjectID(data.partnerID)
+                delete data.userID
+            }
 
             let insertResult = await db.collection(collectionName).insertOne(data);
             let id = insertResult.insertedId

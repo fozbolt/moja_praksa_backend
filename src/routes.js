@@ -455,18 +455,19 @@ export default {
 
     async changeProjectInfo (req, res)  {
 
-        let projectData = req.body 
-        delete projectData.id;
-        let project = {}
-
-        if (projectData && projectData.updateDoc === 'true'){
+        //let projectData = req.body 
+        //delete projectData.id;
+        let  project =  req.body 
+        delete project.id;
+        if (project && project.updateDoc === 'true'){
 
             //mapiranje trenutno nije potrebno jer su nazivi atributa uskladeni, ali inace ce ova funkcja posluziti
-            if (projectData) project = await methods.mapAttributes(projectData)
-                if (!project.selected_by) delete project.selected_by
-                     
-            project.partnerID = ObjectID(projectData.partnerID)
-            project.updateDoc = projectData.updateDoc
+            //if (projectData) project = await methods.mapAttributes(projectData)
+            if (!project.selected_by) delete project.selected_by
+            
+            project.partnerID = ObjectID(project.partnerID)
+            //project.partnerID = ObjectID(projectData.partnerID)
+            //project.updateDoc = projectData.updateDoc
 
             //console.log(req.route.methods["put"]) pa onda true/false -> 2. nacin za dohvati vrstu requesta
             let obj = req.route.methods
@@ -567,21 +568,24 @@ export default {
 
     async addProject (req, res)  {
 
+        let project = req.body
+        
+        /* pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba 
         let projectData = req.body
- 
-        // pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba
         let project = await methods.mapAttributes(projectData)
         
-        //slika je hardcodana jer nema bas smisla imati custom sliku projekta
-        project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
-        //zasto ovdje userID?
         project.userID = projectData.userID
-        project.views = 0
         project.allocated_to = projectData.allocated_to
- 
+        */
+       
+        project.views = 0
+        project.date_created = Date.now()
+        project.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
+
         //brisanje atributa koji su prazni kod inicijalizacije projekta da shodno tome ne aktivira validateData
         if (!project.selected_by) delete project.selected_by
-
+        
+        
         try{
             let result = await methods.pushData(project, 'projects')
             
