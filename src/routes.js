@@ -156,28 +156,37 @@ export default {
 
         let db = await connect()
 
-        let result = await db.collection("content").findOne()
+        try{
+            let result = await db.collection("content").findOne()
 
-        result.id = result._id
-        delete result._id
+            result.id = result._id
+            delete result._id
 
-        res.json(result.instructions)
+            res.json(result.instructions)
+        }
+        catch(e){
+            if (e.name == 'TypeError') {
+                console.log('There are no instructions at the moment')
+                res.send('There are no instructions at the moment')}
+
+            else console.log(e.name)
+        }
+       
     },
 
     
 
     async getApprovedProject(req, res) {
-        let studentID = req.id 
-        console.log(studentID)
+        let studentID = req.params.id
 
         let db = await connect()
 
-        let result = await db.collection("projects").findOne()
+        let result = await db.collection("projects").findOne({ allocated_to: studentID })
 
         result.id = result._id
         delete result._id
 
-        res.json(result.instructions)
+        res.json(result)
     },
     
 
@@ -526,7 +535,7 @@ export default {
         if (!partnerInfo.headers) delete partnerInfo.headers  
         
         else {
-             try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers}}) }
+             try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers, logo: partnerInfo.logo} }) }
              // je li ovo ok?
              catch(e) {res.send('Error accured during updating project headers')}
         }
