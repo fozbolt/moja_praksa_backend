@@ -104,7 +104,7 @@ export default {
         let data = {
             template : req.body,
             id : content._id,
-            updateDoc : 'true'
+            updateDoc : true
         }
 
         let obj = req.route.methods
@@ -131,7 +131,7 @@ export default {
         let data = {
             instructions : req.body,
             id : content._id,
-            updateDoc : 'true'
+            updateDoc : true
         }
 
         let obj = req.route.methods
@@ -196,7 +196,7 @@ export default {
         let formData = {
             id : req.body.userID,
             application : req.body.form,
-            updateDoc : 'true'
+            updateDoc : true
         }
 
         let obj = req.route.methods
@@ -245,7 +245,7 @@ export default {
                 let user = {
                     id : ObjectID(data.userID),
                     journalID : journal.insertedId,
-                    updateDoc : 'true'
+                    updateDoc : true
                 }
 
                 let obj = req.route.methods
@@ -321,7 +321,7 @@ export default {
 
     async addView(req, res){
         let data = req.body
-        data.updateDoc = 'true'
+        data.updateDoc = true
         let collectionName = data.collectionName
         delete data.collectionName
         
@@ -486,7 +486,7 @@ export default {
         //delete projectData.id;
         let  project =  req.body 
         delete project.id;
-        if (project && project.updateDoc === 'true'){
+        if (project && project.updateDoc === true){
 
             //mapiranje trenutno nije potrebno jer su nazivi atributa uskladeni, ali inace ce ova funkcja posluziti
             //if (projectData) project = await methods.mapAttributes(projectData)
@@ -503,7 +503,7 @@ export default {
         
 
         project.id = req.params.id;
-        if (!project.updateDoc) project.updateDoc = 'false'
+        if (!project.updateDoc) project.updateDoc = false
 
         let response = await methods.changeInfo(project, 'projects')
         
@@ -529,7 +529,7 @@ export default {
         // dohvacanje partnera kako bi preko userID-a obrisali i usera ako je API metoda delete
         if (!partnerInfo.updateDoc) { // ili  req.route.methods == 'DELETE'
             partnerTemp = await db.collection("partners").findOne({_id: ObjectID(partnerInfo.id)})
-            partnerTemp.updateDoc = 'false'
+            partnerTemp.updateDoc = false
         }
 
         if (!partnerInfo.headers) delete partnerInfo.headers  

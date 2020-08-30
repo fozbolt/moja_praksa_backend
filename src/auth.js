@@ -154,12 +154,12 @@ export default {
 
     async isStudent(req,res, next){
         let accountType = req.jwt.account_type
-
+        
         try{
         
             if (accountType ===  'Student' )  return next() 
-            //za rute na kojima je isStudent middleware prisutan, autoriziran je samo student, ali iznimka je ruta chosen_projects za putanju /ChosenProjects kojoj ima pristup i admin
-            else if (accountType ===  'Admin' && req.route.path =='/chosen_projects' && req.route.methods.get == true)  return next() 
+            //za rute na kojima je isStudent middleware prisutan, autoriziran je samo student, ali iznimka su donje rute za putanju ... kojoj ima pristup i admin
+            else if (accountType ===  'Admin' && (req.route.path =='/chosen_projects' || req.route.path =='/template') && req.route.methods.get == true)  return next() 
             else  {
                 res.status(401).send()
                 return false

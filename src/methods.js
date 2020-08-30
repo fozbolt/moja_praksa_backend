@@ -7,42 +7,43 @@ import { ObjectID } from 'mongodb'
 let methods  = {
 
 
-    validateData : (data) => {
+    filterData : (data) => {
+        //pošto se sve mandatory vrijednosti provjeravaju da nisu undefined na frontendu, ova funkcija dodaje false vrijednosti non mandatory atributima
         for (const [key, value] of Object.entries(data)) {
+            // maknuti i views?
             if(!value && key != 'views'){
-
-              return false
+            
+                data[key] = false
             }
         }
-        return true
+        
+        return data
     },
 
     
 
     // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
-
-        if (!methods.validateData(data)) {
-            throw new Error("Error accured during inserting project or partner")        
-        }
-            
+        let filteredData = methods.filterData(data)
+        console.log(filteredData)
+        
         let db = await connect()
       
         try{
             
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
-            if(collectionName === 'projects' && data.created_by_admin!= true) {
+            if(collectionName === 'projects' && filteredData.created_by_admin!= true) {
                 
-                let getPartner  = await db.collection("partners").findOne({userID: ObjectID(data.userID)})
-                data.partnerID = ObjectID(getPartner._id)
+                let getPartner  = await db.collection("partners").findOne({userID: ObjectID(filteredData.userID)})
+                filteredData.partnerID = ObjectID(getPartner._id)
             }
-            else if (collectionName === 'projects' && data.created_by_admin === true){
+            else if (collectionName === 'projects' && filteredData.created_by_admin === true){
                 //Moze biti vise partnera kreirano od strane admina pa ne mozemo to traziti klasicno kao u gornjem if-u
-                data.partnerID = ObjectID(data.partnerID)
-                delete data.userID
+                filteredData.partnerID = ObjectID(filteredData.partnerID)
+                delete filteredData.userID
             }
 
-            let insertResult = await db.collection(collectionName).insertOne(data);
+            let insertResult = await db.collection(collectionName).insertOne(filteredData);
             let id = insertResult.insertedId
 
 
@@ -63,7 +64,7 @@ let methods  = {
        
         try{
             partnerData.views = 0
-            
+        
             let result = await methods.pushData(partnerData, 'partners')
             
 
@@ -78,39 +79,33 @@ let methods  = {
     // identičan postupak za promjenu info partnera i projekta -- REFakTORIRATI staviti sve u try catch i u routes.js?
     changeInfo : async (data, collectionName) => {
 
-        if (!methods.validateData(data)) {
-            /* res nije tu definiran ali iskoristiti ovo drugdje
-            res.json({
-                status: 'fail',
-                reason : 'incomplete update data'
-            })
-            */
-            return 'fail'  
-        }
+        let filteredData = methods.filterData(data)
         
         let result, id 
 
-        if (data._id == null){
-            id = data.id
-            delete data.id
+        if (filteredData._id == null){
+            id = filteredData.id
+            delete filteredData.id
         }else{
-            id = data._id
-            delete data._id
+            id = filteredData._id
+            delete filteredData._id
         }
         
         let db = await connect();
+        console.log(filteredData)
+        console.log(cads)
      
         try {
-            if (data.updateDoc==='true' && data.method == 'put') {
-                delete data.updateDoc
-                delete data.method
-                result = await db.collection(collectionName).replaceOne( { _id: ObjectID(id) }, data);
+            if (filteredData.updateDoc=== true && filteredData.method == 'put') {
+                delete filteredData.updateDoc
+                delete filteredData.method
+                result = await db.collection(collectionName).replaceOne( { _id: ObjectID(id) }, filteredData);
             } 
 
-            else if (data.updateDoc==='true' && data.method == 'patch') {
-                delete data.updateDoc
-                delete data.method
-                result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: data, });
+            else if (filteredData.updateDoc=== true && filteredData.method == 'patch') {
+                delete filteredData.updateDoc
+                delete filteredData.method
+                result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: filteredData, });
             } 
                 
             else    result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )

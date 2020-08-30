@@ -28,13 +28,12 @@ app.post('/application_form', [auth.isValidUser], [auth.isStudent], routes.appli
 app.get('/instructions', routes.getInstructions) 
 app.patch('/instructions', [auth.isAdmin], routes.changeInstructions) 
 app.patch('/template', [auth.isAdmin], routes.uploadTemplate) 
-app.get('/template', routes.getJournalTemplate)  //  [auth.isValidUser], [auth.isStudent],  vratiti kad se rijesi bug
+app.get('/template',  [auth.isValidUser], [auth.isStudent],  routes.getJournalTemplate) 
 app.patch('/user', [auth.isValidUser], routes.changeUserInfo) 
 app.delete('/user', [auth.isValidUser], routes.changeUserInfo)
 
 
 //students
-//app.get('/students/:id', routes.getOneStudent)
 app.get('/students',  [auth.isValidUser], [auth.isAdmin], routes.getStudents) 
 app.get('/journal/:id',  [auth.isValidUser], [auth.isAdmin], routes.getJournal) 
 app.get('/approved_project/:id',  [auth.isValidUser], [auth.isStudent], routes.getApprovedProject) 
