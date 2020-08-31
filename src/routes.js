@@ -124,14 +124,12 @@ export default {
     },
 
     async changeInstructions(req, res) {
-        //poboljsati
+
         let db = await connect();
         let content = await db.collection('content').findOne();
 
         let data = {
             instructions : req.body,
-            id : content._id,
-            updateDoc : true
         }
 
         let obj = req.route.methods
@@ -139,10 +137,19 @@ export default {
         
         
         try{
+            let result 
+
+            // ako ne postoji dokument u kolekciji 'content' insertaj instrukcije, inace ih updejtaj
+            if (!content){
+                delete data.method
+                result = await methods.pushData(data, 'content')
+            } else{
+                data.id = content._id,
+                data.updateDoc = true
+                result = await methods.changeInfo(data, 'content')
+            }
             
-            let result = await methods.changeInfo(data, 'content')
-            
-            res.send(`${result} at changing instructions.`)
+            res.send(`success at changing instructions.`)
 
         }
         catch(e){
