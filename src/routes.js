@@ -23,13 +23,11 @@ export default {
                 let priority = undefined
                 
                 try {
-    
                     priority = project.selected_by[attribute]    
 
                     if (priority.includes(studentID)){
                         result.push(project._id);
                         }
-    
                 }
     
                 catch { }
@@ -41,7 +39,7 @@ export default {
     },
 
 
-    //slicna kao neke funkcije, spojiti?
+    
     async getJournal (req,res) {
         let journalID = req.params.id
 
@@ -64,15 +62,22 @@ export default {
 
         let userInfo = req.body
         let obj = req.route.methods
-
         userInfo.method = Object.keys(obj).toString()
+        let validated = false
+        let response
 
-        let response = await methods.changeInfo(userInfo, 'users')
+        // kod brisanja računa se provjerava autentičnost korisnika
+        if (userInfo.updateDoc == false)  validated = await methods.checkPassword(userInfo)     
+
+        // ako je prosla provjera lozinke ili ako se radi samo o updejtu profila
+        if (validated || userInfo.updateDoc == true) response = await methods.changeInfo(userInfo, 'users')
 
         res.send(response)
     },
 
-    //skoro identicna kao getonePartner, spojiti u jednu?
+
+
+    //skoro identicna kao getonePartner, ali ova sadrzi provjeru da li je korisnik partner
     async checkIfPartner(req, res) {
             let id = req.params.id
 
@@ -85,6 +90,7 @@ export default {
         
     },
 
+
     async getJournalTemplate(req, res) {
         let db = await connect()
     
@@ -94,6 +100,7 @@ export default {
         else return false
 
     },
+
 
     async uploadTemplate(req, res) {
 
@@ -129,6 +136,8 @@ export default {
 
     },
 
+
+
     async changeInstructions(req, res) {
 
         let db = await connect();
@@ -163,6 +172,7 @@ export default {
         }  
 
     },
+
 
 
     async getInstructions(req, res) {
@@ -237,12 +247,12 @@ export default {
     },
 
 
-    //refaktorirati -> optimizirati
+    
     async submitJournal (req,res) {
         let data = {
             userID : req.body.user_id,
             journal : req.body.journal,
-            upload_date :  Date.now() // Date(Date.now())
+            upload_date :  Date.now() 
         }
 
         let db = await connect()
@@ -250,8 +260,7 @@ export default {
 
         try{
             /* ako želimo da korisnik ne može više puta uploadati dnevnik */
-            //let checkUser = await db.collection('users').findOne({_id : ObjectID(data.userID)})
-            
+            //let checkUser = await db.collection('users').findOne({_id : ObjectID(data.userID)})         
             //if (checkUser.journalID != false) throw new Error("Error accured during inserting")
 
             journal = await db.collection('journals').insertOne(data)
@@ -293,7 +302,6 @@ export default {
 
         let db = await connect()
 
-
         try{
             let result = await db.collection("projects").findOne({_id: ObjectID(id)})
 
@@ -302,13 +310,12 @@ export default {
 
             res.json(result)
         }
-
         catch(e){
             if (id == null)  res.json({error: 'id is undefined'})
 
             else  res.json({error: e.message})
         }
-},
+    },
 
 
     async getPartnerProjects (req,res) {
@@ -317,12 +324,12 @@ export default {
         let db = await connect()
 
         let cursor= await db.collection("projects").find({partnerID: ObjectID(partnerID)})
-
         let results =  await cursor.toArray()
         
         res.send(results)
 
-},
+    },
+
 
     async addView(req, res){
         let data = req.body
@@ -355,17 +362,6 @@ export default {
 
             if (!result.id) throw new Error('id is undefined')
 
-           
-           // let cursor = await db.collection("projects").find({partnerID: ObjectID(result.id)})
-            //let partnerProjects = await cursor.toArray()
-
-            //const projects = this.project_list
-            //let result = [];
-      
-            //const popularity = projects.filter(project => project.allocated_to.length == 0)[0];
-              
-            //console.log(popularity)
-            
             
             res.json(result)
         }
@@ -377,7 +373,7 @@ export default {
 },
 
 
-
+    //referenca: prof. Tanković
     async changePassword (req,res) {
         let data = req.body
         
@@ -399,7 +395,7 @@ export default {
         else{
             res.status(400).json({error : "Invalid input data"})
         }
-},
+    },
 
 
     async login(req,res) {
@@ -412,7 +408,7 @@ export default {
         catch(e){
             res.status(401).json({error: e.message})
         }
-},
+    },
 
 
     async registration (req, res) { 
@@ -423,7 +419,6 @@ export default {
             let result 
             
             //dodavanje korisnika automatski u partnere čim se registrira
-            
             if (newUser.account_type == 'Poslodavac')    result = await methods.addPartner(partner)
             
         
@@ -434,19 +429,16 @@ export default {
                 error: e.message,
             });
         }
-},
+    },
 
 
     async submitChosenProjects (req, res)  {
         let data = req.body
         let db = await connect()
-
-        //ovo bi islo s .map?
-
-        // {first_priority: [id1, id2, id2], second_priority:[...], third_priority:[...]}
         
         let result
 
+        // struktura na bazi : {first_priority: [id1, id2, id2], second_priority:[...], third_priority:[...]}
         let selectedBy = {
                 first_priority : [],
                 second_priority : [],
@@ -455,33 +447,25 @@ export default {
         //destrukcija strukture
         let entries = Object.entries(selectedBy);
 
-        for(let [index, [key, value]] of entries.entries()){
+        try{
+            for(let [index, [key, value]] of entries.entries()){
 
-            let projectID = data.selection[index]
-       
-            /* https://stackoverflow.com/questions/30969382/mongodb-object-key-with-es6-template-string  da bi bilo moguce dinamicki updejtati*/
-            // var attributeName
-            // let query = { "_id": projectID }
-            // let update = { "$addToSet": {} }
-            // update["$addToSet"][attributeName] = data.user
-
-            //trik za prevariti mongo kompajler
-            // ili selectedBy[key] = 'selected_by. + key
-            key = 'selected_by.' + key
-
-            result = await db.collection('projects').updateOne( { _id: ObjectID(projectID) },{ $addToSet: { [key] : data.user }})
-     
-        }
-                                                                                       
+                let projectID = data.selection[index]
+                key = 'selected_by.' + key
+    
+                await db.collection('projects').updateOne( { _id: ObjectID(projectID) },{ $addToSet: { [key] : data.user }})
+         
+            }
+        } catch(e){
+            res.json({error: e.message, status: "Error during submitting chosen projects"})
+        }                                                                
         
-        res.json(result)
-},
+        res.json('success')
+    },
 
 
     async changeProjectInfo (req, res)  {
 
-        //let projectData = req.body 
-        //delete projectData.id;
         let  project =  req.body 
         delete project.id;
         if (project && project.updateDoc === true){
@@ -491,15 +475,11 @@ export default {
             if (!project.selected_by) delete project.selected_by
             
             project.partnerID = ObjectID(project.partnerID)
-            //project.partnerID = ObjectID(projectData.partnerID)
-            //project.updateDoc = projectData.updateDoc
-
-            //console.log(req.route.methods["put"]) pa onda true/false -> 2. nacin za dohvati vrstu requesta
+           
             let obj = req.route.methods
             project.method = Object.keys(obj).toString()
         }
         
-
         project.id = req.params.id;
         if (!project.updateDoc) project.updateDoc = false
 
@@ -519,10 +499,15 @@ export default {
 
         let obj = req.route.methods
         partnerInfo.method = Object.keys(obj).toString()
-
+        
         let partnerTemp, response, result
 
         let db = await connect()
+
+        //provjera lozinke ako je zahtjev brisanje partnera 
+        let validated = false
+        if (partnerInfo.updateDoc == false)  validated = await methods.checkPassword(partnerInfo)     
+
 
         // dohvacanje partnera kako bi preko userID-a obrisali i usera ako je API metoda delete + brisanje projekata vezanih uz partnera
         if (!partnerInfo.updateDoc) { // ili  req.route.methods == 'DELETE'
@@ -536,23 +521,25 @@ export default {
              }
         }
     
-        
-        if (partnerInfo.headers)  {
+        // prenesi headere i logo partnera na njegove projekte ako ih ima te ako se radi o updaejtu
+        if (partnerInfo.headers && partnerInfo.updateDoc == true)  {
              try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers, logo: partnerInfo.logo} }) }
-             // je li ovo ok?
              catch(e) {res.send('Error accured during updating project headers')}
         }
 
-        //hardcodamo opet defaultnu sliku ako partner nema nikakvog logotipa       
+        //hardcodamo opet defaultnu sliku za svaki slučaj ako partner nema nikakvog logotipa       
         if (partnerInfo.image_url) partnerInfo.image_url = "https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
         
-        response = await methods.changeInfo(partnerInfo, 'partners')
+
+        // ako je prosla provjera lozinke ili ako se radi samo o updejtu profila, onda se poziva metoda za promjenu podataka na bazi 
+        if (validated || partnerInfo.updateDoc == true) response = await methods.changeInfo(partnerInfo, 'partners')
+        else res.status(401).send()
         
 
+        // briše se i user ako je user izbrisao svoj partner profil
         if(response == 'success' && partnerTemp && partnerTemp.created_by_admin != true){
             partnerTemp._id = partnerTemp.userID
-   
-            //brisanje usera
+
             result = await methods.changeInfo(partnerTemp, 'users')
         }
 
@@ -595,7 +582,8 @@ export default {
         let result = await methods.search(query, atributi, 'partners')
 
         res.json(result)
-},
+    },
+
 
 
     async addProject (req, res)  {
@@ -650,26 +638,19 @@ export default {
     async createPartner (req, res)  {
        
         let partnerData = req.body
-
-        // ako će trebati kad stjepan implementira
-        //let project = await methods.mapAttributes(projectData)
+        partnerData.userID = ObjectID(partnerData.userID)
         
-        //dok stjepan ne implementira ce biti ovako hardcodano
+        //hardcodano za pocetak dok partner ne uploada svoje headere ili logo
         partnerData.img_url = "https://images.unsplash.com/photo-1504610926078-a1611febcad3?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80"
         
         //za raspoznavanje koji partneri su se sami kreirali, a koji ne
         partnerData.created_by_admin = true
         partnerData.account_type = 'Admin'
-        partnerData.userID = ObjectID(partnerData.userID)
-  
-    
-        try{
-            
-            let partnerID = await methods.pushData(partnerData, 'partners')
-            
+        
+        try{  
+            let partnerID = await methods.pushData(partnerData, 'partners')          
             
             res.send(`partner with id  ${partnerID} added.`)
-
         }
         catch(e){
             res.status(500).json({ error: e.message});

@@ -1,6 +1,7 @@
 /* Svrha ovog filea je odvojiti metode odnosno funkcije od ruta i handlera radi preglednosti, a metode su pisane radi redundancije koda */
 import connect from './db.js'
 import { ObjectID } from 'mongodb'
+import bcrypt from 'bcrypt'
 
 
 
@@ -10,7 +11,6 @@ let methods  = {
     filterData : (data) => {
         //pošto se sve mandatory vrijednosti provjeravaju da nisu undefined na frontendu, ova funkcija dodaje false vrijednosti non mandatory atributima
         for (const [key, value] of Object.entries(data)) {
-            // maknuti i views?
             if(!value && key != 'views'){
             
                 data[key] = false
@@ -22,7 +22,6 @@ let methods  = {
 
     
 
-    // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
         let filteredData = methods.filterData(data)
 
@@ -57,11 +56,8 @@ let methods  = {
     addPartner : async (partnerData) => {
        
         try{
-            
             partnerData.views = 0
-        
             let result = await methods.pushData(partnerData, 'partners')
-            
 
             return result
         }
@@ -71,7 +67,7 @@ let methods  = {
     },
 
 
-    // identičan postupak za promjenu info partnera i projekta -- REFakTORIRATI staviti sve u try catch i u routes.js?
+ 
     changeInfo : async (data, collectionName) => {
 
         let filteredData = methods.filterData(data)
@@ -87,7 +83,6 @@ let methods  = {
         }
         
         let db = await connect();
-        console.log(filteredData)
         
      
         try {
@@ -207,6 +202,23 @@ let methods  = {
     },
 
 
+    checkPassword : async (userData) =>{
+        let db = await connect()
+        let user = await db.collection("users").findOne({_id : ObjectID(userData._id)})
+    
+        try{
+            if (user && user.password && (await bcrypt.compare(userData.password, user.password))){
+                return true
+            }
+            else{
+                return false
+            }
+        }
+        catch(e){
+            return false
+        }
+
+    }
 
 }
 

@@ -47,7 +47,8 @@ async function register(userData){
     if(userData.account_type == 'Admin') user.account_type = userData.account_type
 
     if(!user.account_type){
-
+    /* kod registracije automatski sortiramo podatke u "user" i "partner" ...
+     ...kako bi kada kreiramo usera, automatski kreirali i partnera(ako je user partner)*/
         if(userData.jmbag){
             user.account_type = 'Student',
             user.jmbag = userData.jmbag,
@@ -94,23 +95,20 @@ export default {
     
     register,
 
-
+    //referenca: prof. Tanković
     async authenticateUser(email,password){
         let db = await connect()
         let user = await db.collection("users").findOne({email : email})
 
-        // provjerava da li je ovaj hesh u bazi izveden iz cistog passworda
+        // provjerava da li je "čista lozinka" ista kao izvedeni hesh u bazi izveden te lozinke
         if(user && user.password && (await bcrypt.compare(password, user.password))){
-            //šifra za potpisivanje korisnika(kriptografski potpis) vežemo je uz naš backend, s tom šifrom potpisujemo 
-            //tokene svih korisnika, kad nam korisnik vraća token provjeravamo da li je on potpisan s našom šifrom
-            //naš token sadrži sve podatke o useru
-            //password nije potrebno spremati u token jer smo ga već provjerili
+            //šifra za potpisivanje korisnika(kriptografski potpis) vežemo je uz naš backend(JWT_SECRET), s tom šifrom potpisujemo...
+            //...tokene svih korisnika, kad nam korisnik vraća token provjeravamo da li je on potpisan s našom šifrom
             delete user.password
             let token = jwt.sign(user, process.env.JWT_SECRET, {
                 algorithm: "HS512",
                 expiresIn: "1 week"
-            })
-            
+            })     
             user.token = token
 
             return user 
@@ -121,7 +119,7 @@ export default {
         }
     },
 
-
+    //referenca: prof. Tanković
     async isValidUser(req,res, next){
         
         try{
@@ -130,14 +128,12 @@ export default {
             let token = authorization[1]
             
             if (type != 'Bearer'){
-                //console.log('type:' + type)
          
                 res.status(401).send()
                 return false;
             }
             else {
-                //spremati u jwt kljuc podatke u korisniku da se moze na bilo kojem mjestu
-                //koristiti ti podaci o korisniku -> da se zna ko salje upit itd
+                //podaci spremljeni u jwt se mogu koristiti na bilo kojem mjestu -> npr da se zna ko salje upit
                 req.jwt = jwt.verify(token, process.env.JWT_SECRET)
                 
                 return next()
@@ -158,7 +154,7 @@ export default {
         try{
         
             if (accountType ===  'Student' )  return next() 
-            //za rute na kojima je isStudent middleware prisutan, autoriziran je samo student, ali iznimka su donje rute za putanju ... kojoj ima pristup i admin
+            //za rute na kojima je isStudent middleware prisutan, autoriziran je samo student, ali iznimka su donje rute  kojima ima pristup i admin
             else if (accountType ===  'Admin' && (req.route.path =='/chosen_projects' || req.route.path =='/template') && req.route.methods.get == true)  return next() 
             else  {
                 res.status(401).send()
@@ -180,10 +176,10 @@ export default {
             if (accountType ===  'Poslodavac' )  return next() 
             
             else  {
-                res.status(401).send()}
+                res.status(401).send()
                 return false
             }
-
+        }
         catch(e){
             return res.status(401).send()
         }
@@ -199,11 +195,10 @@ export default {
             else if(accountType ===  'Student'  && req.route.path =='/students' && req.route.methods.get == true ) return next() 
             
             else  {
-                res.status(401).send()}
+                res.status(401).send()
                 return false
             }
-
-        
+        }
         catch(e){
             return res.status(401).send()
         }
@@ -218,18 +213,17 @@ export default {
             if (accountType ===  'Admin' || accountType === 'Poslodavac')  return next() 
             
             else  {
-                res.status(401).send()}
+                res.status(401).send()
                 return false
             }
-
-        
+        }
         catch(e){
             return res.status(401).send()
         }
     },
-    
 
 
+    // referenca: prof. Tanković
     async changeUserPassword(userData){
         let db = await connect()
  
