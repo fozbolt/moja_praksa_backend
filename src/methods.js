@@ -25,27 +25,33 @@ let methods  = {
     // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
         let filteredData = methods.filterData(data)
+      
         console.log(filteredData)
-        
         let db = await connect()
       
         try{
             
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
             if(collectionName === 'projects' && filteredData.created_by_admin!= true) {
-                
+    
+                console.log(filteredData)
                 let getPartner  = await db.collection("partners").findOne({userID: ObjectID(filteredData.userID)})
+                console.log('gtpart:', getPartner)
                 filteredData.partnerID = ObjectID(getPartner._id)
+                console.log('gd:', filteredData)
             }
             else if (collectionName === 'projects' && filteredData.created_by_admin === true){
                 //Moze biti vise partnera kreirano od strane admina pa ne mozemo to traziti klasicno kao u gornjem if-u
                 filteredData.partnerID = ObjectID(filteredData.partnerID)
+                console.log(filteredData)
                 delete filteredData.userID
+               
             }
 
             let insertResult = await db.collection(collectionName).insertOne(filteredData);
             let id = insertResult.insertedId
-
+            console.log('id:',id)
+        
 
             if(id) return id
             else throw new Error("Error accured during inserting project or partner")
@@ -63,6 +69,7 @@ let methods  = {
     addPartner : async (partnerData) => {
        
         try{
+            
             partnerData.views = 0
         
             let result = await methods.pushData(partnerData, 'partners')

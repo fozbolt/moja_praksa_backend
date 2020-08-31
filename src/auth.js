@@ -10,7 +10,7 @@ dotenv.config();
     let admin = await db.collection("users").findOne({account_type : 'Admin'})
 
     db.collection('users').createIndex({ email: 1 }, { unique: true });
-
+    
     if(!admin){
 
         let adminData = {
@@ -43,8 +43,8 @@ async function register(userData){
         password: await bcrypt.hash(userData.password, 8),
         date_created: Date.now(),
     }
-
-    if(userData.account_type == 'Admin') user.accountType = userData.account_type
+   
+    if(userData.account_type == 'Admin') user.account_type = userData.account_type
 
     if(!user.account_type){
 
@@ -128,8 +128,7 @@ export default {
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
-            console.log('tu sam')
-            console.log(authorization)
+            
             if (type != 'Bearer'){
                 //console.log('type:' + type)
          
@@ -212,10 +211,8 @@ export default {
 
     
     async isPartnerOrAdmin(req,res, next){
-        console.log('tu adssadam')
+        
         let accountType = req.jwt.account_type
-        console.log(accountType)
-        console.log('tu sam')
         
         try{
             if (accountType ===  'Admin' || accountType === 'Poslodavac')  return next() 

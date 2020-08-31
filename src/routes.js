@@ -352,24 +352,13 @@ export default {
 
             if (!result.id) throw new Error('id is undefined')
 
-            //get partner popularity
-            //https://stackoverflow.com/questions/34268176/count-total-number-of-elements-inside-an-array-in-document-mongodb
-            // let cursor = await db.collection("projects").aggregate(
-            //     [
-            //         {
-            //           $match: { partnerID : ObjectID(id) }
-            //         },
-            //         {
-            //           $group: {
-            //             _id: null, // da ih ne grupira nego samo pokaze ukupan zbroj
-            //             total: { $sum: { $size: "$allocated_to"} }
-            //           }
-            //         }
-            //     ] 
-            // )
-            // let popularity = await cursor.toArray()
-            // result.popularity = popularity[0].total
-            //console.log(result.popularity)
+           
+            // let cursor = await db.collection("projects").find({partnerID: ObjectID(result.id)})
+               
+            //let partnerProjects = await cursor.toArray()
+
+
+            
 
             res.json(result)
         }
@@ -528,15 +517,20 @@ export default {
 
         let db = await connect()
 
-        // dohvacanje partnera kako bi preko userID-a obrisali i usera ako je API metoda delete
+        // dohvacanje partnera kako bi preko userID-a obrisali i usera ako je API metoda delete + brisanje projekata vezanih uz partnera
         if (!partnerInfo.updateDoc) { // ili  req.route.methods == 'DELETE'
             partnerTemp = await db.collection("partners").findOne({_id: ObjectID(partnerInfo.id)})
             partnerTemp.updateDoc = false
-        }
 
-        if (!partnerInfo.headers) delete partnerInfo.headers  
+            try {
+                await db.collection("projects").deleteMany( { partnerID : ObjectID(partnerTemp._id) } );
+             } catch (e) {
+                console.log (e);
+             }
+        }
+    
         
-        else {
+        if (partnerInfo.headers)  {
              try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers, logo: partnerInfo.logo} }) }
              // je li ovo ok?
              catch(e) {res.send('Error accured during updating project headers')}
@@ -631,7 +625,7 @@ export default {
     async createPartner (req, res)  {
        
         let partnerData = req.body
-        
+
         // ako će trebati kad stjepan implementira
         //let project = await methods.mapAttributes(projectData)
         
@@ -640,8 +634,9 @@ export default {
         
         //za raspoznavanje koji partneri su se sami kreirali, a koji ne
         partnerData.created_by_admin = true
-        
-
+        partnerData.userID = ObjectID(partnerData.userID)
+  
+    
         try{
             
             let partnerID = await methods.pushData(partnerData, 'partners')
