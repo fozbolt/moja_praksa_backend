@@ -93,7 +93,7 @@ let methods  = {
         
         let db = await connect();
         console.log(filteredData)
-        console.log(cads)
+        
      
         try {
             if (filteredData.updateDoc=== true && filteredData.method == 'put') {
