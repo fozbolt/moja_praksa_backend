@@ -96,25 +96,31 @@ export default {
     },
 
     async uploadTemplate(req, res) {
-        //poboljsati
 
         let db = await connect();
         let content = await db.collection('content').findOne();
 
         let data = {
-            template : req.body,
-            id : content._id,
-            updateDoc : true
+            template : req.body
         }
 
         let obj = req.route.methods
         data.method = Object.keys(obj).toString()
         
         try{
+            let result 
+
+            // ako ne postoji dokument u kolekciji 'content' insertaj instrukcije, inace ih updejtaj
+            if (!content){
+                delete data.method
+                result = await methods.pushData(data, 'content')
+            } else{
+                data.id = content._id,
+                data.updateDoc = true
+                result = await methods.changeInfo(data, 'content')
+            }
             
-            let result = await methods.changeInfo(data, 'content')
-            
-            res.send(`${result} at changing template.`)
+            res.send(`success at changing instructions.`)
 
         }
         catch(e){
@@ -129,7 +135,7 @@ export default {
         let content = await db.collection('content').findOne();
 
         let data = {
-            instructions : req.body,
+            instructions : req.body
         }
 
         let obj = req.route.methods
@@ -599,9 +605,6 @@ export default {
         /* pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba 
         let projectData = req.body
         let project = await methods.mapAttributes(projectData)
-        
-        project.userID = projectData.userID
-        project.allocated_to = projectData.allocated_to
         */
        
         project.views = 0
@@ -613,7 +616,26 @@ export default {
         
         
         try{
+            //insert projekta
             let result = await methods.pushData(project, 'projects')
+
+            //dohvati partnera i ako partner ima uploadane slike, prenesi ih na projekt
+            let db = await connect()
+            let partner = await db.collection("partners").findOne({_id: ObjectID(project.partnerID)})
+       
+            if(partner.headers || partner.logo){
+              
+                let addedProject = {
+                    id : result,
+                    updateDoc : true,
+                    method : 'patch'
+                }
+                if (partner.headers)  addedProject.headers = partner.headers
+                if (partner.logo)   addedProject.logo = partner.logo
+
+                await methods.changeInfo(addedProject, 'projects')
+            } 
+   
             
             res.send(`project with id  ${result} added.`)
 

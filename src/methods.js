@@ -135,7 +135,9 @@ let methods  = {
                 note: projectData.note,
                 allocated_to: projectData.allocated_to,
                 selected_by: projectData.selected_by,
-                img_url: projectData.img_url
+                img_url: projectData.img_url,
+                userID : projectData.userID,
+                allocated_to : projectData.allocated_to
                 
         }
         return project
