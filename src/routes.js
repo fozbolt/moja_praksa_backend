@@ -352,21 +352,21 @@ export default {
 
             //get partner popularity
             //https://stackoverflow.com/questions/34268176/count-total-number-of-elements-inside-an-array-in-document-mongodb
-            let cursor = await db.collection("projects").aggregate(
-                [
-                    {
-                      $match: { partnerID : ObjectID(id) }
-                    },
-                    {
-                      $group: {
-                        _id: null, // da ih ne grupira nego samo pokaze ukupan zbroj
-                        total: { $sum: { $size: "$allocated_to"} }
-                      }
-                    }
-                ] 
-            )
-            let popularity = await cursor.toArray()
-            result.popularity = popularity[0].total
+            // let cursor = await db.collection("projects").aggregate(
+            //     [
+            //         {
+            //           $match: { partnerID : ObjectID(id) }
+            //         },
+            //         {
+            //           $group: {
+            //             _id: null, // da ih ne grupira nego samo pokaze ukupan zbroj
+            //             total: { $sum: { $size: "$allocated_to"} }
+            //           }
+            //         }
+            //     ] 
+            // )
+            // let popularity = await cursor.toArray()
+            // result.popularity = popularity[0].total
             //console.log(result.popularity)
 
             res.json(result)
