@@ -64,7 +64,7 @@ async function register(userData){
             partner.about_us = userData.about_us,
             partner.date_created = Date.now(),
             partner.contact_email = userData.contact_email,
-            partner.contact_number = userData.telephone_number,
+            partner.telephone_number = userData.telephone_number,
             partner.img_url = 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80',
             partner.account_type = 'Poslodavac'
         }
@@ -128,7 +128,8 @@ export default {
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
-         
+            console.log('tu sam')
+            console.log(authorization)
             if (type != 'Bearer'){
                 //console.log('type:' + type)
          
@@ -211,8 +212,10 @@ export default {
 
     
     async isPartnerOrAdmin(req,res, next){
-        
+        console.log('tu adssadam')
         let accountType = req.jwt.account_type
+        console.log(accountType)
+        console.log('tu sam')
         
         try{
             if (accountType ===  'Admin' || accountType === 'Poslodavac')  return next() 

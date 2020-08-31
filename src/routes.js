@@ -183,9 +183,11 @@ export default {
 
         let result = await db.collection("projects").findOne({ allocated_to: studentID })
 
-        result.id = result._id
-        delete result._id
-
+        if(result){
+            result.id = result._id
+            delete result._id
+        }
+        
         res.json(result)
     },
     
