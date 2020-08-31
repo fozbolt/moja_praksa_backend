@@ -543,6 +543,8 @@ export default {
             result = await methods.changeInfo(partnerTemp, 'users')
         }
 
+        else result = response
+
 
         res.send(result)
 },
