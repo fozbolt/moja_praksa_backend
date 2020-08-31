@@ -303,16 +303,6 @@ export default {
         let partnerID = req.params.id
         let db = await connect()
 
-        //nađi projekte koje pripadaju određenom poslodavcu
-        /*
-        let find_IDs= await db.collection("partners").find({_id: ObjectID(id)})
-        let result =  await find_IDs.toArray()
-
-        let filtered_IDs = result[0].projects
-
-        let cursor2 = await db.collection("projects").find({_id: {$in: filtered_IDs}})
-        let finalResult =  await cursor2.toArray()
-        */
         let cursor= await db.collection("projects").find({partnerID: ObjectID(partnerID)})
 
         let results =  await cursor.toArray()
@@ -353,13 +343,17 @@ export default {
             if (!result.id) throw new Error('id is undefined')
 
            
-            // let cursor = await db.collection("projects").find({partnerID: ObjectID(result.id)})
-               
+           // let cursor = await db.collection("projects").find({partnerID: ObjectID(result.id)})
             //let partnerProjects = await cursor.toArray()
 
-
+            //const projects = this.project_list
+            //let result = [];
+      
+            //const popularity = projects.filter(project => project.allocated_to.length == 0)[0];
+              
+            //console.log(popularity)
             
-
+            
             res.json(result)
         }
 
@@ -542,7 +536,7 @@ export default {
         response = await methods.changeInfo(partnerInfo, 'partners')
         
 
-        if(response == 'success' && partnerTemp){
+        if(response == 'success' && partnerTemp && partnerTemp.created_by_admin != true){
             partnerTemp._id = partnerTemp.userID
    
             //brisanje usera
@@ -592,7 +586,7 @@ export default {
     async addProject (req, res)  {
 
         let project = req.body
-        
+ 
         /* pušteno ovako u slučaju da se imena atributa razlikuju pa je lakše promijeniti, ali za sada ne treba 
         let projectData = req.body
         let project = await methods.mapAttributes(projectData)
@@ -634,6 +628,7 @@ export default {
         
         //za raspoznavanje koji partneri su se sami kreirali, a koji ne
         partnerData.created_by_admin = true
+        partnerData.account_type = 'Admin'
         partnerData.userID = ObjectID(partnerData.userID)
   
     
