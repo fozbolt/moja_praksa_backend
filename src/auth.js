@@ -152,10 +152,11 @@ export default {
         let accountType = req.jwt.account_type
       
         try{
-        
-            if (accountType ===  'Student' )  return next() 
             //za rute na kojima je isStudent middleware prisutan, autoriziran je samo student, ali iznimka su donje rute  kojima ima pristup i admin
-            else if (accountType ===  'Admin' && (req.route.path =='/chosen_projects/:id' || req.route.path =='/template') && req.route.methods.get == true)  return next() 
+            let checkPath = req.route.path =='/chosen_projects/:id' || req.route.path =='/template' || req.route.path == '/approved_project/:id'
+
+            if (accountType ===  'Student' )  return next() 
+            else if (accountType ===  'Admin' && checkPath && req.route.methods.get == true)  return next() 
             else  {
                 res.status(401).send()
                 return false
