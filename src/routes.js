@@ -533,7 +533,7 @@ export default {
         }
     
         // prenesi headere i logo partnera na njegove projekte ako ih ima te ako se radi o updaejtu
-        if (partnerInfo.headers && partnerInfo.updateDoc == true)  {
+        if (partnerInfo.headers || partnerInfo.logo  && partnerInfo.updateDoc == true)  {
              try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers, logo: partnerInfo.logo} }) }
              catch(e) {res.send('Error accured during updating project headers')}
         }
