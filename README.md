@@ -1,5 +1,6 @@
 
 <b>RAZVOJ WEB PLATFORME ZA UGOVARANJE STRUČNE PRAKSE - BACKEND</b>
+
 Završni rad
 Autor: Filip Ožbolt
 
