@@ -59,19 +59,33 @@ export default {
 
 
     async changeUserInfo (req, res)  {
-
         let userInfo = req.body
         let obj = req.route.methods
         userInfo.method = Object.keys(obj).toString()
         let validated = false
-        let response
-
+        let response, chosenProjectsRemoved
+       
         // kod brisanja računa se provjerava autentičnost korisnika
         if (userInfo.updateDoc == false)  validated = await methods.checkPassword(userInfo)     
-
+        
         // ako je prosla provjera lozinke ili ako se radi samo o updejtu profila
-        if (validated || userInfo.updateDoc == true) response = await methods.changeInfo(userInfo, 'users')
-
+        if (validated || userInfo.updateDoc == true) {
+         
+            response = await methods.changeInfo(userInfo, 'users')
+        
+            //ako je request brisanje računa, izbriši odabire projekata tog studenta
+            if (response == 'success' && userInfo.updateDoc){
+                chosenProjectsRemoved = await db.collection("projects").updateMany({}, { $pull: {
+                    selected_by: {first_priority:  {$in : userInfo._id} }, 
+                    selected_by: {second_priority: {$in : userInfo._id}  },
+                    selected_by: {third_priority:  {$in : userInfo._id} },
+                    }
+                }
+            )
+            console.log(response)
+            console.log(chosenProjectsRemoved)
+          }    
+        }
         res.send(response)
     },
 
@@ -103,7 +117,6 @@ export default {
 
 
     async uploadTemplate(req, res) {
-
         let db = await connect();
         let content = await db.collection('content').findOne();
 
@@ -117,7 +130,7 @@ export default {
         try{
             let result 
 
-            // ako ne postoji dokument u kolekciji 'content' insertaj instrukcije, inace ih updejtaj
+            // ako ne postoji dokument u kolekciji 'content' insertaj template, inace ga updejtaj
             if (!content){
                 delete data.method
                 result = await methods.pushData(data, 'content')

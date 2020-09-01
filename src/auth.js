@@ -121,11 +121,11 @@ export default {
 
     //referenca: prof. Tanković
     async isValidUser(req,res, next){
-        
         try{
             let authorization = req.headers.authorization.split(' ')
             let type = authorization[0]
             let token = authorization[1]
+            
             
             if (type != 'Bearer'){
          

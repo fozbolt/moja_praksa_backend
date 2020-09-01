@@ -26,7 +26,7 @@ app.put('/journal', [auth.isValidUser], [auth.isStudent], routes.submitJournal)
 app.post('/application_form', [auth.isValidUser], [auth.isStudent], routes.applicationForm)  
 app.get('/instructions', routes.getInstructions) 
 app.patch('/instructions', [auth.isValidUser], [auth.isAdmin], routes.changeInstructions) 
-app.patch('/template', [auth.isAdmin], routes.uploadTemplate) 
+app.patch('/template', [auth.isValidUser], [auth.isAdmin], routes.uploadTemplate) 
 app.get('/template',  [auth.isValidUser], [auth.isStudent],  routes.getJournalTemplate) 
 app.patch('/user', [auth.isValidUser],  routes.changeUserInfo) 
 
