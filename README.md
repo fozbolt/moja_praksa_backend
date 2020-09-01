@@ -1,13 +1,13 @@
 
-RAZVOJ WEB PLATFORME ZA UGOVARANJE STRUČNE PRAKSE - BACKEND
-Završni rad
-Autor: Filip Ožbolt  
+RAZVOJ WEB PLATFORME ZA UGOVARANJE STRUČNE PRAKSE - BACKEND\newline
+Završni rad\newline
+Autor: Filip Ožbolt\newline
 
-Mentor: doc. dr. sc. Darko Etinger
+Mentor: doc. dr. sc. Darko Etinger\newline
 
-Komentor: doc. dr. sc. Nikola Tanković
+Komentor: doc. dr. sc. Nikola Tanković\newline
 
-Sveučilište Jurja Dobrile u Puli, Fakultet informatike
+Sveučilište Jurja Dobrile u Puli, Fakultet informatike\newline
 
 
 
