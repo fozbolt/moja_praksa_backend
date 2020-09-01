@@ -84,7 +84,6 @@ let methods  = {
         
         let db = await connect();
         
-        console.log(filteredData)
         try {
             if (filteredData.updateDoc=== true && filteredData.method == 'put') {
                 delete filteredData.updateDoc
@@ -204,7 +203,7 @@ let methods  = {
 
     checkPassword : async (userData) =>{
 
-        let id, user, partner
+        let id, user
 
         if (userData._id == null){
             id = userData.id

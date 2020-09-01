@@ -503,7 +503,6 @@ export default {
             id = partnerInfo._id
             delete partnerInfo._id
         }
-        console.log(id)
         
         delete partnerInfo._id;
         partnerInfo.id = req.params.id;
@@ -525,7 +524,6 @@ export default {
         if (!partnerInfo.updateDoc) { // ili  req.route.methods == 'DELETE'
             partnerTemp = await db.collection("partners").findOne({_id: ObjectID(id)})
             partnerTemp.updateDoc = false
-            console.log(partnerTemp)
 
             try {
                 await db.collection("projects").deleteMany( { partnerID : ObjectID(partnerTemp._id) } );
@@ -555,7 +553,6 @@ export default {
         // briše se i user ako je user izbrisao svoj partner profil
         if(response == 'success' && partnerTemp && partnerTemp.created_by_admin != true){
             partnerTemp._id = partnerTemp.userID
-            console.log('tu user')
             result = await methods.changeInfo(partnerTemp, 'users')
         }
         else result = response
