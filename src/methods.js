@@ -1,6 +1,7 @@
 /* Svrha ovog filea je odvojiti metode odnosno funkcije od ruta i handlera radi preglednosti, a metode su pisane radi redundancije koda */
 import connect from './db.js'
 import { ObjectID } from 'mongodb'
+import bcrypt from 'bcrypt'
 
 
 
@@ -10,7 +11,6 @@ let methods  = {
     filterData : (data) => {
         //pošto se sve mandatory vrijednosti provjeravaju da nisu undefined na frontendu, ova funkcija dodaje false vrijednosti non mandatory atributima
         for (const [key, value] of Object.entries(data)) {
-            // maknuti i views?
             if(!value && key != 'views'){
             
                 data[key] = false
@@ -22,30 +22,23 @@ let methods  = {
 
     
 
-    // jer je skoro identičan postupak za dodavanje partnera i projekta
     pushData : async (data, collectionName) => {
         let filteredData = methods.filterData(data)
-        console.log(filteredData)
-        
+
         let db = await connect()
       
         try{
             
             //projektu pridodajemo partnerID radi lakšeg mapiranja i rada s podacima
-            if(collectionName === 'projects' && filteredData.created_by_admin!= true) {
-                
-                let getPartner  = await db.collection("partners").findOne({userID: ObjectID(filteredData.userID)})
-                filteredData.partnerID = ObjectID(getPartner._id)
-            }
-            else if (collectionName === 'projects' && filteredData.created_by_admin === true){
-                //Moze biti vise partnera kreirano od strane admina pa ne mozemo to traziti klasicno kao u gornjem if-u
+            if(collectionName === 'projects' ) {
                 filteredData.partnerID = ObjectID(filteredData.partnerID)
                 delete filteredData.userID
             }
+            
 
             let insertResult = await db.collection(collectionName).insertOne(filteredData);
             let id = insertResult.insertedId
-
+        
 
             if(id) return id
             else throw new Error("Error accured during inserting project or partner")
@@ -64,9 +57,7 @@ let methods  = {
        
         try{
             partnerData.views = 0
-        
             let result = await methods.pushData(partnerData, 'partners')
-            
 
             return result
         }
@@ -76,7 +67,7 @@ let methods  = {
     },
 
 
-    // identičan postupak za promjenu info partnera i projekta -- REFakTORIRATI staviti sve u try catch i u routes.js?
+ 
     changeInfo : async (data, collectionName) => {
 
         let filteredData = methods.filterData(data)
@@ -92,9 +83,7 @@ let methods  = {
         }
         
         let db = await connect();
-        console.log(filteredData)
-        console.log(cads)
-     
+        
         try {
             if (filteredData.updateDoc=== true && filteredData.method == 'put') {
                 delete filteredData.updateDoc
@@ -140,7 +129,9 @@ let methods  = {
                 note: projectData.note,
                 allocated_to: projectData.allocated_to,
                 selected_by: projectData.selected_by,
-                img_url: projectData.img_url
+                img_url: projectData.img_url,
+                userID : projectData.userID,
+                allocated_to : projectData.allocated_to
                 
         }
         return project
@@ -210,6 +201,38 @@ let methods  = {
     },
 
 
+    checkPassword : async (userData) =>{
+
+        let id, user
+
+        if (userData._id == null){
+            id = userData.id
+            delete userData.id
+        }else{
+            id = userData._id
+            delete userData._id
+        }
+
+        let db = await connect()
+
+        // kod partnera id dolazi iz kolekcije "partners" pa ga treba prepisati s vrijednošću userID
+        if (userData.account_type == 'Poslodavac' || userData.account_type == 'Admin')  id = userData.userID
+
+        user = await db.collection("users").findOne({_id : ObjectID(id)})
+
+        try{
+            if (user && user.password && (await bcrypt.compare(userData.password, user.password || userData.password == true))){
+                return true
+            }
+            else{
+                return false
+            }
+        }
+        catch(e){
+            return false
+        }
+
+    }
 
 }
 
