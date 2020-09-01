@@ -250,21 +250,28 @@ export default {
     
     async submitJournal (req,res) {
         let data = {
-            userID : req.body.user_id,
+            userID : ObjectID(req.body.user_id),
             journal : req.body.journal,
             upload_date :  Date.now() 
         }
 
         let db = await connect()
-        let journal
+        let journal = await db.collection('users').findOne({_id: ObjectID(data.userID)})
+        let newJournal
 
         try{
             /* ako želimo da korisnik ne može više puta uploadati dnevnik */
             //let checkUser = await db.collection('users').findOne({_id : ObjectID(data.userID)})         
             //if (checkUser.journalID != false) throw new Error("Error accured during inserting")
 
-            journal = await db.collection('journals').insertOne(data)
-            
+            if (journal){
+                newJournal = await db.collection('journals').replaceOne({ _id: ObjectID(journal._id), data})
+            } 
+            else {
+                newJournal = await db.collection('journals').insertOne(data)
+            } 
+
+            //ubacuje jos journalID u usera da budu dvostruko povezani
             try {
                 let user = {
                     id : ObjectID(data.userID),
