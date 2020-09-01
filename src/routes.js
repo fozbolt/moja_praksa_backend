@@ -491,8 +491,20 @@ export default {
 
 
     async changePartnerInfo (req, res)  {
-    
+
         let partnerInfo = req.body
+
+        let id
+
+        if (partnerInfo._id == null){
+            id = partnerInfo.id
+            delete partnerInfo.id
+        }else{
+            id = partnerInfo._id
+            delete partnerInfo._id
+        }
+        console.log(id)
+        
         delete partnerInfo._id;
         partnerInfo.id = req.params.id;
         partnerInfo.userID = ObjectID(partnerInfo.userID)
@@ -504,15 +516,16 @@ export default {
 
         let db = await connect()
 
-        //provjera lozinke ako je zahtjev brisanje partnera 
+        //provjera lozinke u slučaju da je zahtjev brisanje partnera 
         let validated = false
         if (partnerInfo.updateDoc == false)  validated = await methods.checkPassword(partnerInfo)     
 
 
         // dohvacanje partnera kako bi preko userID-a obrisali i usera ako je API metoda delete + brisanje projekata vezanih uz partnera
         if (!partnerInfo.updateDoc) { // ili  req.route.methods == 'DELETE'
-            partnerTemp = await db.collection("partners").findOne({_id: ObjectID(partnerInfo.id)})
+            partnerTemp = await db.collection("partners").findOne({_id: ObjectID(id)})
             partnerTemp.updateDoc = false
+            console.log(partnerTemp)
 
             try {
                 await db.collection("projects").deleteMany( { partnerID : ObjectID(partnerTemp._id) } );
@@ -530,19 +543,21 @@ export default {
         //hardcodamo opet defaultnu sliku za svaki slučaj ako partner nema nikakvog logotipa       
         if (partnerInfo.image_url) partnerInfo.image_url = "https://images.unsplash.com/photo-1493119508027-2b584f234d6c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
         
-
+        
         // ako je prosla provjera lozinke ili ako se radi samo o updejtu profila, onda se poziva metoda za promjenu podataka na bazi 
-        if (validated || partnerInfo.updateDoc == true) response = await methods.changeInfo(partnerInfo, 'partners')
-        else res.status(401).send()
+        if (validated || partnerInfo.updateDoc == true) {
+            partnerInfo.id = id
+            response = await methods.changeInfo(partnerInfo, 'partners')
+        }
+        else return false
         
 
         // briše se i user ako je user izbrisao svoj partner profil
         if(response == 'success' && partnerTemp && partnerTemp.created_by_admin != true){
             partnerTemp._id = partnerTemp.userID
-
+            console.log('tu user')
             result = await methods.changeInfo(partnerTemp, 'users')
         }
-
         else result = response
 
 

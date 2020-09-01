@@ -84,7 +84,7 @@ let methods  = {
         
         let db = await connect();
         
-     
+        console.log(filteredData)
         try {
             if (filteredData.updateDoc=== true && filteredData.method == 'put') {
                 delete filteredData.updateDoc
@@ -203,11 +203,26 @@ let methods  = {
 
 
     checkPassword : async (userData) =>{
+
+        let id, user, partner
+
+        if (userData._id == null){
+            id = userData.id
+            delete userData.id
+        }else{
+            id = userData._id
+            delete userData._id
+        }
+
         let db = await connect()
-        let user = await db.collection("users").findOne({_id : ObjectID(userData._id)})
-    
+
+        // kod partnera id dolazi iz kolekcije "partners" pa ga treba prepisati s vrijednošću userID
+        if (userData.account_type == 'Poslodavac' || userData.account_type == 'Admin')  id = userData.userID
+
+        user = await db.collection("users").findOne({_id : ObjectID(id)})
+
         try{
-            if (user && user.password && (await bcrypt.compare(userData.password, user.password))){
+            if (user && user.password && (await bcrypt.compare(userData.password, user.password || userData.password == true))){
                 return true
             }
             else{
