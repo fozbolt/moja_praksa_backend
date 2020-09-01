@@ -34,4 +34,14 @@ te bi se time cijelokupno ugovaranje prakse moglo obaviti putem naše aplikacije
 </h5>
 
 
+
+Demo računi:
+<p>
+<h5>Student -> email: "e@mail.com", lozinka: "123</h5>
+
+<h5>Poslodavac ->  email: "google@mail.com", lozinka: "123"</h5>
+
+<h5>Admin -> email: "admin@admin", lozinka: "admin"</h5>
+</p>
+
 <h4>Dokumentacija:</h4> 
