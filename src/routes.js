@@ -64,6 +64,10 @@ export default {
         userInfo.method = Object.keys(obj).toString()
         let validated = false
         let response, chosenProjectsRemoved
+
+        console.log('tu sam')
+        console.log(userInfo)
+        console.log(asdas)
        
         // kod brisanja računa se provjerava autentičnost korisnika
         if (userInfo.updateDoc == false)  validated = await methods.checkPassword(userInfo)     

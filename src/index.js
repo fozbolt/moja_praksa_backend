@@ -9,7 +9,7 @@ import auth from './auth.js'
 
 
 const app = express() // instanciranje aplikacije
-const port = process.env.PORT // port na kojem će web server slušati
+const port = process.env.PORT; // port na kojem će web server slušati
 
 app.use(cors())
 
