@@ -74,7 +74,7 @@ let methods  = {
         
         let result, id 
 
-        if (filteredData._id == null){
+        if (!filteredData._id){
             id = filteredData.id
             delete filteredData.id
         }else{
@@ -83,6 +83,7 @@ let methods  = {
         }
         
         let db = await connect();
+
         
         try {
             if (filteredData.updateDoc=== true && filteredData.method == 'put') {
@@ -207,10 +208,8 @@ let methods  = {
 
         if (userData._id == null){
             id = userData.id
-            delete userData.id
         }else{
             id = userData._id
-            delete userData._id
         }
 
         let db = await connect()
