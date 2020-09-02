@@ -90,6 +90,34 @@ export default {
     },
 
 
+    
+
+
+    async test (req, res)  {
+        let userInfo = req.body
+        let obj = req.route.methods
+        userInfo.method = Object.keys(obj).toString()
+        let validated = false
+        let response, chosenProjectsRemoved
+       
+        // kod brisanja računa se provjerava autentičnost korisnika
+        if (userInfo.updateDoc == false)  validated = await methods.checkPassword(userInfo)     
+        
+            //ako je request brisanje računa, izbriši odabire projekata tog studenta
+            if ( userInfo.updateDoc == false){
+                chosenProjectsRemoved = await db.collection("projects").updateMany({}, { $pull: {
+                    selected_by: {first_priority:  {$in : userInfo._id} }, 
+                    selected_by: {second_priority: {$in : userInfo._id}  },
+                    selected_by: {third_priority:  {$in : userInfo._id} },
+                    }
+                }
+            )
+            console.log(response)
+            console.log(chosenProjectsRemoved)
+          }    
+        
+        res.send(response)
+    },
 
     //skoro identicna kao getonePartner, ali ova sadrzi provjeru da li je korisnik partner
     async checkIfPartner(req, res) {
