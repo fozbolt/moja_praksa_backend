@@ -24,7 +24,7 @@ te bi se time cijelokupno ugovaranje prakse moglo obaviti putem naše aplikacije
 <b>Funkcionalnosti</b>
 <h5>
   
-- Neautorizirani korsnici: Pregled dostupnih projekata i poslodavaca
+- Neautorizirani korisnici: Pregled dostupnih projekata i poslodavaca
 
 - Studenti: Pregled dostupnih projekata i poslodavaca, Upute za obavljanje prakse, odabir projekata, uvid u rezultat dodjele projekata, uvid u vlastiti i tuđi tijek obavljanja      prakse(student ne vidi tuđa imena nego samo JMBAG), popunjavanje prijavnice, preuzimanje templetea dnevnika i predaja popunjenog dnevnika, uvid u vlastiti profil i izmjena podataka, brisanje korisničkog računa ili promjena lozinke
 
