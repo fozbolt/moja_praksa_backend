@@ -63,40 +63,23 @@ export default {
         let obj = req.route.methods
         userInfo.method = Object.keys(obj).toString()
         let validated = false
-        let response, chosenProjectsRemoved
-
-        console.log('tu sam')
-        console.log(userInfo)
-        console.log(asdas)
+        let response
        
         // kod brisanja računa se provjerava autentičnost korisnika
         if (userInfo.updateDoc == false)  validated = await methods.checkPassword(userInfo)     
         
+        // ne želimo update ovog atributa na bazi
+        if(userInfo.chosenProjects) delete user.chosenProjects
+
         // ako je prosla provjera lozinke ili ako se radi samo o updejtu profila
-        if (validated || userInfo.updateDoc == true) {
-         
-            response = await methods.changeInfo(userInfo, 'users')
+        if (validated || userInfo.updateDoc == true)  response = await methods.changeInfo(userInfo, 'users')
         
-            //ako je request brisanje računa, izbriši odabire projekata tog studenta
-            if (response == 'success' && userInfo.updateDoc){
-                chosenProjectsRemoved = await db.collection("projects").updateMany({}, { $pull: {
-                    selected_by: {first_priority:  {$in : userInfo._id} }, 
-                    selected_by: {second_priority: {$in : userInfo._id}  },
-                    selected_by: {third_priority:  {$in : userInfo._id} },
-                    }
-                }
-            )
-            console.log(response)
-            console.log(chosenProjectsRemoved)
-          }    
-        }
+
         res.send(response)
     },
 
 
     
-
-
     async test (req, res)  {
         let userInfo = req.body
         let obj = req.route.methods
@@ -172,7 +155,7 @@ export default {
                 result = await methods.changeInfo(data, 'content')
             }
             
-            res.send(`success at changing instructions.`)
+            res.send(`success at changing template.`)
 
         }
         catch(e){
@@ -348,7 +331,6 @@ export default {
 
     },
 
-
     async getOneProject (req,res) {
         let id = req.params.id
 
@@ -400,10 +382,8 @@ export default {
 
 
     async getOnePartner (req,res) {
-        //ne vraca gresku kad je id nepostojeci
 
         let id = req.params.id
-
         let db = await connect()
 
         try{
@@ -414,15 +394,13 @@ export default {
 
             if (!result.id) throw new Error('id is undefined')
 
-            
             res.json(result)
         }
-
         catch(e){
             res.json({error: e.message})
         }
         
-},
+    },
 
 
     //referenca: prof. Tanković
@@ -464,16 +442,18 @@ export default {
 
 
     async registration (req, res) { 
-        let newUser = req.body;
+        let newUser = req.body.new_user;
+        let entryCode = req.body.registrationCode
 
         try {
-            let partner = await auth.register(newUser);
+            if (entryCode !== process.env.entry_code)  throw new Error("Wrong entry code")
+            
+            let user = await auth.register(newUser);
             let result 
-            
+       
             //dodavanje korisnika automatski u partnere čim se registrira
-            if (newUser.account_type == 'Poslodavac')    result = await methods.addPartner(partner)
+            if (newUser.account_type == 'Poslodavac')    result = await methods.addPartner(user)
             
-        
             res.json({status: `user with id ${result} added`})
 
         } catch (e) {
@@ -487,8 +467,6 @@ export default {
     async submitChosenProjects (req, res)  {
         let data = req.body
         let db = await connect()
-        
-        let result
 
         // struktura na bazi : {first_priority: [id1, id2, id2], second_priority:[...], third_priority:[...]}
         let selectedBy = {
@@ -545,7 +523,6 @@ export default {
     async changePartnerInfo (req, res)  {
 
         let partnerInfo = req.body
-
         let id
 
         if (partnerInfo._id == null){
@@ -586,7 +563,12 @@ export default {
     
         // prenesi headere i logo partnera na njegove projekte ako ih ima te ako se radi o updaejtu
         if (partnerInfo.headers || partnerInfo.logo  && partnerInfo.updateDoc == true)  {
-             try { await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {headers: partnerInfo.headers, logo: partnerInfo.logo} }) }
+             try { 
+                 await db.collection("projects").updateMany({partnerID : ObjectID(partnerInfo.id)}, {$set: {
+                    headers: partnerInfo.headers, 
+                    logo: partnerInfo.logo} 
+                    })
+            }
              catch(e) {res.send('Error accured during updating project headers')}
         }
 
@@ -641,7 +623,7 @@ export default {
     async getPartners (req, res) {
 
         let query = req.query
-        let atributi = ["company", "about_us"] 
+        let atributi = ["company", "about_us", "technologies"] 
 
         let result = await methods.search(query, atributi, 'partners')
 

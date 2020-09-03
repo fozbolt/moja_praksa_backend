@@ -7,9 +7,9 @@ import bcrypt from 'bcrypt'
 
 let methods  = {
 
-
     filterData : (data) => {
-        //pošto se sve mandatory vrijednosti provjeravaju da nisu undefined na frontendu, ova funkcija dodaje false vrijednosti non mandatory atributima
+        /*pošto se sve mandatory vrijednosti provjeravaju da nisu undefined...
+        ... na frontendu, ova funkcija dodaje false vrijednosti non mandatory atributima*/
         for (const [key, value] of Object.entries(data)) {
             if(!value && key != 'views'){
             
@@ -56,6 +56,7 @@ let methods  = {
     addPartner : async (partnerData) => {
        
         try{
+            //napravljeno da se može dodati još podataka koji su tipični za partnera
             partnerData.views = 0
             let result = await methods.pushData(partnerData, 'partners')
 
@@ -98,10 +99,8 @@ let methods  = {
                 result = await db.collection(collectionName).updateOne( { _id: ObjectID(id) },{ $set: filteredData, });
             } 
                 
-            else    result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } )
-            
+            else    result = await db.collection(collectionName).deleteOne( { _id: ObjectID(id) } ) 
         }
-        
 
         catch(e){
             console.log(e)

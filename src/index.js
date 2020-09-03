@@ -8,8 +8,8 @@ import cors from 'cors'
 import auth from './auth.js'
 
 
-const app = express() // instanciranje aplikacije
-const port = process.env.PORT; // port na kojem će web server slušati
+const app = express() 
+const port = process.env.PORT; 
 
 app.use(cors())
 
@@ -59,4 +59,4 @@ app.post('/partners', [auth.isValidUser], [auth.isAdmin], routes.createPartner)
 app.get('/check_partner/:id', [auth.isValidUser], [auth.isPartner], routes.checkIfPartner) 
 
 
-app.listen(port, () => console.log(`Slušam na portu ${port}!`))
+app.listen(port, () => console.log('Found available port and listening'))

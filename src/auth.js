@@ -71,7 +71,6 @@ async function register(userData){
         }
     }
 
-
     
     try{
         let insertResult = await db.collection('users').insertOne(user);
@@ -192,7 +191,8 @@ export default {
         
         try{
             if (accountType ===  'Admin' )  return next() 
-            //za rute na kojima je isAdmin middleware prisutan, autoriziran je samo admin, ali iznimka je ruta getStudents za putanju /TableOfStudents kojoj ima pristup i student
+            /*za rute na kojima je isAdmin middleware prisutan, autoriziran je samo admin...  
+               ... ali iznimka je ruta getStudents za putanju /TableOfStudents kojoj ima pristup i student*/
             else if(accountType ===  'Student'  && req.route.path =='/students' && req.route.methods.get == true ) return next() 
             
             else  {
