@@ -16,7 +16,7 @@ Sveučilište Jurja Dobrile u Puli, Fakultet informatike
 <b>Sažetak</b>
 <p><h5>
 Vođeni idejom olakšavanja i optimiziranja ugovaranja stručne prakse na FIPU te poboljšanja iskustva kako za studente tako i za poslodavce, kolega Stjepan i ja smo odlučili napraviti web aplikaciju "Moja-praksa". Kolega je radio frontend dio, a ja pripadajući backend. Web aplikacija se sastoji od 4 sučelja ovisno o stupnju autorizacije pa tako imamo sučelje za: neautorizirane korisnike, studente, poslodavce i admina. Na kraju možemo zaključiti da smo prilično zadovoljni s napravljenim funkcionalnostima, ali da bi u sljedećem poboljšanju svakako trebao biti neki chat između studenta i poslodavca te studenta i admina kako bi se i taj dio ugovaranja koji se obavlja preko maila(korisnicima bi samo automatski dolazile obavijesti na email da imaju poruku na "Moja-praksa" jer poslodavci sigurno neće posjećivati web aplikaciju na dnevnoj bazi) prebacio na "Moja-praksa"
-te bi se time cijelokupno ugovaranje prakse moglo obaviti putem naše aplikacije.
+te bi se time cjelokupno ugovaranje prakse moglo obaviti putem naše aplikacije.
 </h5></p>
 
 
