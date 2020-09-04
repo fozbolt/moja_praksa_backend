@@ -42,6 +42,8 @@ Demo računi:
 <h5>Poslodavac ->  email: "google@mail.com", lozinka: "123"</h5>
 
 <h5>Admin -> email: "admin@admin", lozinka: "admin"</h5>
+
+<h6>Pristupni kod za registraciju: xQ9P4t</h6>
 </p>
 
 
