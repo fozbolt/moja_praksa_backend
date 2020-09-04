@@ -50,4 +50,4 @@ Demo računi:
 
 Web aplikacija: https://moja-praksa-frontend.vercel.app/
 
-Dokumentacija:  [priložena dokumentacija završnog rada](https://github.com/fozbolt/moja_praksa_backend/blob/master/Razvoj%20web%20platforme%20za%20ugovaranje%20stru%C4%8Dne%20prakse%20-%20backend%20-%20Filip%20O%C5%BEbolt.pdf)
+Dokumentacija:  [priložena dokumentacija završnog rada](https://github.com/fozbolt/moja_praksa_backend/blob/master/Razvoj%20platforme%20za%20ugovaranje%20stru%C4%8Dne%20prakse%20-%20backend%20-%20O%C5%BEbolt.pdf)
