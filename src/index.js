@@ -29,7 +29,7 @@ app.patch('/instructions', [auth.isValidUser], [auth.isAdmin], routes.changeInst
 app.patch('/template', [auth.isValidUser], [auth.isAdmin], routes.uploadTemplate) 
 app.get('/template',  [auth.isValidUser], [auth.isStudent],  routes.getJournalTemplate) 
 app.patch('/user', [auth.isValidUser],  routes.changeUserInfo) 
-app.patch('/test', [auth.isValidUser],  routes.changeUserInfo) //testni
+//app.patch('/test', [auth.isValidUser],  routes.changeUserInfo) //testni
 
 
 
