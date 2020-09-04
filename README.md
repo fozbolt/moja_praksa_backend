@@ -48,6 +48,6 @@ Demo računi:
 
 
 
-Web aplikacija: https://moja-praksa-frontend-7pumgts14.vercel.app/
+Web aplikacija: https://moja-praksa-frontend.vercel.app/
 
 Dokumentacija:
