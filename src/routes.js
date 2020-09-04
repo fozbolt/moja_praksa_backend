@@ -446,7 +446,7 @@ export default {
         let entryCode = req.body.registrationCode
 
         try {
-            if (entryCode !== process.env.entry_code)  throw new Error("Wrong entry code")
+            if (entryCode !== process.env.ENTRY_CODE)  throw new Error("Wrong entry code")
             
             let user = await auth.register(newUser);
             let result 
